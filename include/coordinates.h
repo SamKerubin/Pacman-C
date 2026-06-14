@@ -1,0 +1,42 @@
+#ifndef COORDINATES_H
+#define COORDINATES_H
+
+static const int DIR_X[5] = {0, 0, -1, 1, 0};
+static const int DIR_Y[5] = {-1, 1, 0, 0, 0};
+
+typedef enum direction {
+    LEFT = 0,
+    RIGHT,
+    UP,
+    DOWN,
+    IGNORE
+} direction;
+
+typedef struct coordinates {
+    int X;
+    int Y;
+} coordinates;
+
+static inline int compare_coordinates(coordinates coord_A, coordinates coord_B) {
+    return coord_A.X == coord_B.X && coord_A.Y == coord_B.Y;
+}
+
+static inline direction get_direction_from_input(char c) {
+    switch (c) {
+        case 'A':
+            return UP;
+
+        case 'D':
+            return LEFT;
+
+        case 'B':
+            return DOWN;
+
+        case 'C':
+            return RIGHT;
+
+        default: return IGNORE;
+    }
+}
+
+#endif // !COORDINATES_H
