@@ -31,8 +31,16 @@ static inline coordinates coordinates_mult(coordinates coord_A, int times) {
     return (coordinates){coord_A.X * times, coord_A.Y * times};
 }
 
+static inline coordinates coordinates_prod(coordinates coord_A, coordinates coord_B) {
+    return (coordinates){coord_A.X * coord_B.X, coord_A.Y * coord_B.Y};
+}
+
 static inline coordinates coordinates_sum(coordinates coord_A, coordinates coord_B) {
     return (coordinates){coord_A.X + coord_B.X, coord_A.Y + coord_B.Y};
+}
+
+static inline coordinates coordinates_diff(coordinates coord_A, coordinates coord_B) {
+    return (coordinates){coord_A.X - coord_B.X, coord_A.Y - coord_B.Y};
 }
 
 static inline float coordinate_distance_to(coordinates coord_A, coordinates coord_B) {
