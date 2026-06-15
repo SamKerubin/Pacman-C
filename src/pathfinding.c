@@ -13,15 +13,15 @@ coordinates find_shortest_path(uint8_t id, uint8_t **board,
     coordinates shortest = {-1, -1};
     float shortest_distance = INFINITY;
     for (int i = 0; i < 4; i++) {
-        coordinates adj_coord = (coordinates){start.Y + DIR_Y[i], start.X + DIR_X[i]};
+        coordinates adj_coord = (coordinates){start.X + DIR_X[i], start.Y + DIR_Y[i]};
 
         if (!is_valid(adj_coord, board, id)) {
             continue;
         }
 
-        float eucledian_distance = coordinate_distance_to(adj_coord, end);
-        if (eucledian_distance < shortest_distance) {
-            shortest_distance = eucledian_distance;
+        float euclidean_distance = coordinate_distance_to(adj_coord, end);
+        if (euclidean_distance < shortest_distance) {
+            shortest_distance = euclidean_distance;
             shortest = adj_coord;
         }
     }
