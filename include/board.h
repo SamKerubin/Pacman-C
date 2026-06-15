@@ -14,8 +14,7 @@
 #define INKY_ID 7
 #define CLYDE_ID 8
 
-#define TOTAL_DOTS 240
-#define TOTAL_POWER_DOTS 4
+#define TOTAL_DOTS 244
 
 #define STARTER_LIFES 3
 
@@ -25,7 +24,7 @@
 
 #define BLINKY_SCATTER_TARGET (coordinates){0, BOARD_WIDTH - 4}
 #define PINKY_SCATTER_TARGET (coordinates){0, BOARD_WIDTH - (BOARD_WIDTH - 4)}
-#define NKY_SCATTER_TARGET (coordinates){BOARD_HEIGHT - 2, BOARD_WIDTH - 4}
+#define INKY_SCATTER_TARGET (coordinates){BOARD_HEIGHT - 2, BOARD_WIDTH - 4}
 #define CLYDE_SCATTER_TARGET (coordinates){BOARD_WIDTH - 2, 0}
 
 #define SCORE_FILE_PATH "/home/%s/.config/pacman-score.txt"
@@ -54,6 +53,10 @@ typedef struct board {
 
 board *init_board();
 void end_game(board *board);
+
+int is_valid(coordinates coord,
+                    uint8_t **board,
+                    uint8_t id);
 
 void update_board(board *board);
 void print_board(board *board);

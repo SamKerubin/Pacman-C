@@ -3,15 +3,6 @@
 #include "coordinates.h"
 #include <math.h>
 
-static int is_valid(coordinates coord,
-                    uint8_t **board,
-                    uint8_t id) {
-    return (coord.X < BOARD_HEIGHT && coord.X >= 0)
-            && (coord.Y < BOARD_WIDTH && coord.Y >= 0)
-            && board[coord.Y][coord.X] != WALL_ID
-            && board[coord.Y][coord.X] != id;
-}
-
 coordinates find_shortest_path(uint8_t id, uint8_t **board,
                                coordinates start,
                                coordinates end) {
