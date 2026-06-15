@@ -35,10 +35,9 @@ static inline coordinates coordinates_sum(coordinates coord_A, coordinates coord
     return (coordinates){coord_A.X + coord_B.X, coord_A.Y + coord_B.Y};
 }
 
-static inline int coordinate_distance_to(coordinates coord_A, coordinates coord_B) {
-    return round(sqrt(SQUARE(coord_A.X - coord_B.X) + SQUARE(coord_A.Y - coord_B.Y)));
+static inline float coordinate_distance_to(coordinates coord_A, coordinates coord_B) {
+    return sqrt(SQUARE(coord_A.X - coord_B.X) + SQUARE(coord_A.Y - coord_B.Y));
 }
-
 
 static inline direction get_direction_from_input(char c) {
     switch (c) {

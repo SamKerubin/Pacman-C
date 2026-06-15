@@ -16,7 +16,7 @@ BIN = $(BIN_DIR)/pacman-c
 default: makedir all
 
 $(BIN): $(OBJ)
-	$(CC) -o $@ $(OBJ) $(CFLAGS)
+	$(CC) -o $@ $(OBJ) $(CFLAGS) -lm
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(COBJFLAGS) -MMD -MP -MF $(@:.o=.d) -o $@ $<
