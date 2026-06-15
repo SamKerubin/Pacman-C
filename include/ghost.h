@@ -6,6 +6,7 @@
 #define CLYDE_DOT_LIMIT 60
 
 #include "coordinates.h"
+#include <stdint.h>
 
 typedef enum ghost_state {
     INIT = 0,
@@ -18,22 +19,16 @@ typedef enum ghost_state {
 typedef struct ghost {
     coordinates position;
     coordinates next_position;
-    void (*init_tile_finder)(struct ghost *self, void *board);
-    void (*scatter_tile_finder)(struct ghost *self, void *board);
-    void (*chase_tile_finder)(struct ghost *self, void *board);
-    void (*frightened_tile_finder)(struct ghost *self, void *board);
-    void (*eaten_tile_finder)(struct ghost *self, void *board);
+    direction current_direction;
     coordinates target_coordinate;
     ghost_state state;
-    int dot_counter;
+    uint8_t id;
+    uint8_t dot_counter;
 } ghost;
 
-ghost *init_ghost(coordinates init_position,
-                  void (*chase_tile_finder)(ghost *self, void *board),
-                  void (*scatter_tile_finder)(ghost *self, void *board),
-                  void (*frightened_tile_finder)(ghost *self, void *board));
+ghost *init_ghost(uint8_t id, coordinates init_position);
 void free_ghost(ghost *ghost);
 
-void move_ghost(ghost *ghost);
+void move_ghost(ghost *ghost, uint8_t **board, coordinates target);
 
 #endif // !GHOST_H
