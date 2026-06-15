@@ -4,6 +4,16 @@
 #define BOARD_WIDTH 28
 #define BOARD_HEIGHT 36
 
+#define WALL_ID 0
+#define EMPTY_ID 1
+#define DOT_ID 2
+#define POWER_DOT_ID 3
+#define PACMAN_ID 4
+#define BLINKY_ID 5
+#define PINKY_ID 6
+#define INKY_ID 7
+#define CLYDE_ID 8
+
 #define TOTAL_DOTS 240
 #define TOTAL_POWER_DOTS 4
 
@@ -13,33 +23,40 @@
 #define GHOST_EATEN_MULTIPLIER 2
 #define BASE_GHOST_EATEN_SCORE 200
 
+#define BLINKY_SCATTER_TARGET (coordinates){0, BOARD_WIDTH - 4}
+#define PINKY_SCATTER_TARGET (coordinates){0, BOARD_WIDTH - (BOARD_WIDTH - 4)}
+#define NKY_SCATTER_TARGET (coordinates){BOARD_HEIGHT - 2, BOARD_WIDTH - 4}
+#define CLYDE_SCATTER_TARGET (coordinates){BOARD_WIDTH - 2, 0}
+
 #define SCORE_FILE_PATH "/home/%s/.config/pacman-score.txt"
 
 #include "coordinates.h"
 #include "pacman.h"
 #include "ghost.h"
+#include <stdint.h>
 
 typedef struct board {
-    char **board;
+    uint8_t **board;
     pacman *pacman;
     ghost *blinky;
     ghost *pinky;
     ghost *inky;
     ghost *clyde;
-    ghost **preferred_ghost;
-    coordinates power_dots_positions[TOTAL_POWER_DOTS];
-    int ghosts_eaten;
-    int power_dots_count;
-    int score;
-    int dots_eaten;
-    int lifes;
-    int level;
+    ghost *preferred_ghost;
+    // coordinates power_dots_positions[TOTAL_POWER_DOTS];
+    // uint8_t ghosts_eaten;
+    // uint8_t power_dots_count;
+    uint8_t dots_eaten;
+    uint32_t score;
+    uint16_t lifes;
+    uint16_t level;
 } board;
 
 board *init_board();
 void end_game(board *board);
 
 void update_board(board *board);
+void print_board(board *board);
 
 void move_pacman(board *board);
 void move_ghosts(board *board);
@@ -47,6 +64,11 @@ void move_ghosts(board *board);
 void eat_ghost(board *board);
 void eat_dot(board *board);
 void eat_power_dot(board *board);
+
+coordinates get_blinky_target_position(board *board);
+coordinates get_pinky_target_position(board *board);
+coordinates get_inky_target_position(board *board);
+coordinates get_clyde_target_position(board *board);
 
 void life_lost(board *board);
 void go_next_level(board *board);
