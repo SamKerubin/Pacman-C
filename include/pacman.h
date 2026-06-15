@@ -2,10 +2,12 @@
 #define PACMAN_H
 
 #include "coordinates.h"
+#include <stdint.h>
 
 typedef struct pacman {
     coordinates position;
     direction current_direction;
+    uint8_t id;
 } pacman;
 
 pacman *init_pacman(coordinates inital_position);
