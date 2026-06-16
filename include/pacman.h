@@ -7,6 +7,7 @@
 typedef struct pacman {
     coordinates position;
     direction current_direction;
+    direction last_direction;
     uint8_t id;
 } pacman;
 

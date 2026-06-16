@@ -98,8 +98,25 @@ void print_board(board *board) {
     printf("\n");
 }
 
-void move_pacman(board *board) {
+int move_pacman(board *board, direction d) {
+    pacman *pacman = board->pacman;
 
+    direction new_direction = d;
+
+    coordinates direction = {DIR_X[d], DIR_Y[d]};
+    coordinates pacman_new_pos = coordinates_sum(pacman->position, direction);
+    if (is_wall(pacman_new_pos, board->board)) {
+        new_direction = pacman->last_direction;
+    }
+
+    if (!is_inside_bounds(pacman_new_pos)) {
+        pacman_new_pos.X = (pacman_new_pos.X % BOARD_HEIGHT + BOARD_HEIGHT) % BOARD_HEIGHT;
+        pacman_new_pos.Y = (pacman_new_pos.Y % BOARD_WIDTH + BOARD_WIDTH) % BOARD_WIDTH;
+    }
+
+    pacman->last_direction = pacman->current_direction;
+    pacman->current_direction = new_direction;
+    return 1;
 }
 
 void move_ghosts(board *board) {
