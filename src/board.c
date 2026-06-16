@@ -120,7 +120,10 @@ int move_pacman(board *board, direction d) {
 }
 
 void move_ghosts(board *board) {
-
+    move_ghost(board->blinky, board->board, get_blinky_target_position(board));
+    move_ghost(board->pinky, board->board, get_pinky_target_position(board));
+    move_ghost(board->inky, board->board, get_inky_target_position(board));
+    move_ghost(board->clyde, board->board, get_clyde_target_position(board));
 }
 
 void eat_ghost(board *board) {
