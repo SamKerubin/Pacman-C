@@ -2,10 +2,45 @@
 #include "coordinates.h"
 #include "ghost.h"
 #include "pacman.h"
+#include <stdio.h>
 #include <stdlib.h>
 
-board *init_board() {
+static void set_walls(board *board) {
 
+}
+
+board *init_board() {
+    board *b = (board *)calloc(1, sizeof(board));
+
+    b->board = (uint8_t **)malloc(BOARD_HEIGHT * sizeof(uint8_t *));
+    for (int i = 0; i < BOARD_HEIGHT; i++) {
+        b->board[i] = (uint8_t *)malloc(BOARD_WIDTH * sizeof(uint8_t));
+    }
+
+    for (int i = 0; i < BOARD_HEIGHT; i++) {
+        for (int j = 0; j < BOARD_WIDTH; j++) {
+            b->board[i][j] = EMPTY_ID;
+        }
+    }
+
+    set_walls(b);
+
+    b->blinky = init_ghost(BLINKY_ID, (coordinates){});
+    b->blinky->state = SCATTER;
+
+    b->board[b->blinky->position.Y][b->blinky->position.X] = b->blinky->id;
+
+    b->pinky = init_ghost(PINKY_ID, (coordinates){});
+    b->inky = init_ghost(INKY_ID, (coordinates){});
+    b->clyde = init_ghost(CLYDE_ID, (coordinates){});
+
+    b->board[b->pinky->position.Y][b->pinky->position.X] = b->pinky->id;
+    b->board[b->inky->position.Y][b->inky->position.X] = b->inky->id;
+    b->board[b->clyde->position.Y][b->clyde->position.X] = b->clyde->id;
+
+    b->pacman = init_pacman((coordinates){});
+
+    return b;
 }
 
 void end_game(board *board) {
@@ -15,13 +50,10 @@ void end_game(board *board) {
 int is_valid(coordinates coord,
                     uint8_t **board,
                     uint8_t id) {
-    return (coord.X < BOARD_HEIGHT && coord.X >= 0)
-            && (coord.Y < BOARD_WIDTH && coord.Y >= 0)
-            && board[coord.Y][coord.X] != WALL_ID
+    return is_inside_bounds(coord)
+            && !is_wall(coord, board)
             && board[coord.Y][coord.X] != id;
 }
-
-void update_board(board *board) {
 
 }
 
@@ -70,9 +102,7 @@ static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board,
 coordinates get_blinky_target_position(board *board) {
     switch (board->blinky->state) {
         case SCATTER: return BLINKY_SCATTER_TARGET;
-
         case CHASE: return board->pacman->position;
-
         case FRIGHTENED: return get_random_valid_adjacent(board->blinky->position,
                                                           board->board,
                                                           board->blinky->id); 
@@ -97,15 +127,11 @@ static coordinates pinky_chase_target(board *board) {
 coordinates get_pinky_target_position(board *board) {
     switch (board->pinky->state) {
         case INIT: return board->pinky->position;
-
         case SCATTER: return PINKY_SCATTER_TARGET;
-
         case CHASE: return pinky_chase_target(board);
-
         case FRIGHTENED: return get_random_valid_adjacent(board->pinky->position,
                                                           board->board,
                                                           board->pinky->id); 
-
         default:
             return (coordinates){-1, -1};
     }
@@ -133,11 +159,8 @@ static coordinates inky_chase_target(board *board) {
 coordinates get_inky_target_position(board *board) {
     switch (board->inky->state) {
         case INIT: return board->inky->position;
-
         case SCATTER: return INKY_SCATTER_TARGET;
-
         case CHASE: return inky_chase_target(board);
-
         case FRIGHTENED: return get_random_valid_adjacent(board->inky->position,
                                                           board->board,
                                                           board->inky->id); 
@@ -158,11 +181,8 @@ static coordinates clyde_chase_target(board *board) {
 coordinates get_clyde_target_position(board *board) {
     switch (board->clyde->state) {
         case INIT: return board->clyde->position;
-
         case SCATTER: return CLYDE_SCATTER_TARGET;
-
         case CHASE: return clyde_chase_target(board);
-
         case FRIGHTENED: return get_random_valid_adjacent(board->clyde->position,
                                                           board->board,
                                                           board->clyde->id); 
@@ -173,10 +193,10 @@ coordinates get_clyde_target_position(board *board) {
 }
 
 void life_lost(board *board) {
-
+    board->lifes--;
 }
 
 void go_next_level(board *board) {
-
+    board->level++;
 }
 
