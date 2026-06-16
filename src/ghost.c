@@ -38,13 +38,14 @@ void free_ghost(ghost *ghost) {
 }
 
 void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
+    ghost->last_position = ghost->position;
     ghost->position = ghost->next_position;
+
     if (!is_inside_bounds(ghost->position)) {
         ghost->position.X = (ghost->position.X % BOARD_HEIGHT + BOARD_HEIGHT) % BOARD_HEIGHT;
         ghost->position.Y = (ghost->position.Y % BOARD_WIDTH + BOARD_WIDTH) % BOARD_WIDTH;
     }
 
-    board[ghost->position.Y][ghost->position.X] = ghost->id;
     ghost->target_coordinate = target;
 
     if (ghost->state == INIT) {

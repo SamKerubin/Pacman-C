@@ -18,6 +18,7 @@ typedef enum ghost_state {
 
 typedef struct ghost {
     coordinates position;
+    coordinates last_position;
     coordinates next_position;
     direction current_direction;
     coordinates target_coordinate;
