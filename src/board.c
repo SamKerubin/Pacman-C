@@ -6,6 +6,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static void fill_board(board *board) {
+    for (int i = 0; i < BOARD_HEIGHT; i++) {
+        for (int j = 0; j < BOARD_WIDTH; j++) {
+            if (BOARD[i][j] == DOT_ID && board->remaining_dots < TOTAL_DOTS) {
+                board->dots_positions[board->remaining_dots++] = (coordinates){i, j};
+            }
+
+            if (BOARD[i][j] == POWER_DOT_ID && board->remaining_power_dots < TOTAL_POWER_DOTS) {
+                board->power_dots_positions[board->remaining_power_dots++] = (coordinates){i, j};
+            }
+
+            board->board[i][j] = BOARD[i][j];
+        }
+    }
+
+}
+
 board *init_board() {
     board *b = (board *)calloc(1, sizeof(board));
 
@@ -14,19 +31,7 @@ board *init_board() {
         b->board[i] = (uint8_t *)malloc(BOARD_WIDTH * sizeof(uint8_t));
     }
 
-    for (int i = 0; i < BOARD_HEIGHT; i++) {
-        for (int j = 0; j < BOARD_WIDTH; j++) {
-            if (BOARD[i][j] == DOT_ID && b->remaining_dots < TOTAL_DOTS) {
-                b->dots_positions[b->remaining_dots++] = (coordinates){i, j};
-            }
-
-            if (BOARD[i][j] == POWER_DOT_ID && b->remaining_power_dots < TOTAL_POWER_DOTS) {
-                b->power_dots_positions[b->remaining_power_dots++] = (coordinates){i, j};
-            }
-
-            b->board[i][j] = BOARD[i][j];
-        }
-    }
+    fill_board(b);
 
     b->lifes = STARTER_LIFES;
 
