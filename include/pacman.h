@@ -6,12 +6,13 @@
 
 typedef struct pacman {
     coordinates position;
+    coordinates last_position;
     direction current_direction;
     direction last_direction;
     uint8_t id;
 } pacman;
 
-pacman *init_pacman(coordinates inital_position);
+pacman *init_pacman(uint8_t id, coordinates inital_position);
 void free_pacman(pacman *pacman);
 
 #endif // !PACMAN_H
