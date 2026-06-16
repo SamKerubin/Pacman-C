@@ -44,6 +44,30 @@ board *init_board() {
 }
 
 void end_game(board *board) {
+    if (!board) {
+        return;
+    }
+
+    for (int i = 0; i < BOARD_HEIGHT; i++) {
+        free(board->board[i]);
+    }
+    free(board->board);
+
+    free_ghost(board->blinky);
+    free_ghost(board->pinky);
+    free_ghost(board->inky);
+    free_ghost(board->clyde);
+
+    free_pacman(board->pacman);
+
+    free(board);
+}
+
+
+int is_inside_bounds(coordinates coord) {
+    return (coord.X < BOARD_HEIGHT && coord.X >= 0)
+            && (coord.Y < BOARD_WIDTH && coord.Y >= 0);
+}
 
 static inline int is_wall(coordinates coord, uint8_t **board) {
     return board[coord.Y][coord.X] == WALL_ID;
