@@ -19,6 +19,8 @@
 
 #define PACMAN_INIT_POSITION (coordinates){13, 26}
 
+#define HOME_POSITION (coordinates){13, 16}
+
 #define BLINKY_INIT_POSITION (coordinates){13, 14}
 #define PINKY_INIT_POSITION (coordinates){13, 17}
 #define INKY_INIT_POSITION (coordinates){11, 17}

@@ -202,6 +202,7 @@ coordinates get_blinky_target_position(board *board) {
         case FRIGHTENED: return get_random_valid_adjacent(board->blinky->position,
                                                           board->board,
                                                           board->blinky->id); 
+        case EATEN: return HOME_POSITION;
         case INIT:
         default:
             return (coordinates){-1, -1};
@@ -228,6 +229,7 @@ coordinates get_pinky_target_position(board *board) {
         case FRIGHTENED: return get_random_valid_adjacent(board->pinky->position,
                                                           board->board,
                                                           board->pinky->id); 
+        case EATEN: return HOME_POSITION;
         default:
             return (coordinates){-1, -1};
     }
@@ -260,6 +262,7 @@ coordinates get_inky_target_position(board *board) {
         case FRIGHTENED: return get_random_valid_adjacent(board->inky->position,
                                                           board->board,
                                                           board->inky->id); 
+        case EATEN: return HOME_POSITION;
         default:
             return (coordinates){-1, -1};
     }
@@ -282,6 +285,7 @@ coordinates get_clyde_target_position(board *board) {
         case FRIGHTENED: return get_random_valid_adjacent(board->clyde->position,
                                                           board->board,
                                                           board->clyde->id); 
+        case EATEN: return HOME_POSITION;
         default:
             return (coordinates){-1, -1};
 
