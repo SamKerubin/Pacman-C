@@ -55,10 +55,47 @@ int is_valid(coordinates coord,
             && board[coord.Y][coord.X] != id;
 }
 
+static void print_pacman(direction pacman_dir) {
+    switch (pacman_dir) {
+        case UP: printf(YELLOW PACMAN_ICON_UP RESET); break;
+        case DOWN: printf(YELLOW PACMAN_ICON_DOWN RESET); break;
+        case LEFT: printf(YELLOW PACMAN_ICON_LEFT RESET); break;
+        case RIGHT: printf(YELLOW PACMAN_ICON_RIGHT RESET); break;
+        default: break;
+    }
 }
 
 void print_board(board *board) {
+    printf("1UP     HIGH SCORE\n");
+    printf("     %d\n", board->score);
 
+    for (int i = 3; i < BOARD_HEIGHT - 2; i++) {
+        for (int j = 0; j < BOARD_WIDTH; j++) {
+            uint8_t tile = board->board[i][j];
+
+            switch (tile) {
+                case WALL_ID: printf(BLUE WALL_ICON RESET); break;
+                case EMPTY_ID: printf(" "); break;
+                case DOT_ID: printf(LIGHT_YELLOW DOT_ICON RESET); break;
+                case POWER_DOT_ID: printf(LIGHT_YELLOW POWER_DOT_ICON RESET); break;
+                case PACMAN_ID: print_pacman(board->pacman->current_direction); break;
+                case BLINKY_ID: printf(RED GHOST_ICON RESET); break;
+                case PINKY_ID: printf(PINK GHOST_ICON RESET); break;
+                case INKY_ID: printf(CYAN GHOST_ICON RESET); break;
+                case CLYDE_ID: printf(ORANGE GHOST_ICON RESET); break;
+                default: break;
+            }
+
+            if (j == BOARD_WIDTH - 1) {
+                printf("\n");
+            }
+        }
+    }
+
+    for (int i = 0; i < board->lifes; i++) {
+        printf(YELLOW LIFE_ICON RESET " ");
+    }
+    printf("\n");
 }
 
 void move_pacman(board *board) {

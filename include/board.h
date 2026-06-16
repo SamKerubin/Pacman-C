@@ -4,16 +4,6 @@
 #define BOARD_WIDTH 28
 #define BOARD_HEIGHT 36
 
-#define WALL_ID 0
-#define EMPTY_ID 1
-#define DOT_ID 2
-#define POWER_DOT_ID 3
-#define PACMAN_ID 4
-#define BLINKY_ID 5
-#define PINKY_ID 6
-#define INKY_ID 7
-#define CLYDE_ID 8
-
 #define TOTAL_DOTS 244
 
 #define STARTER_LIFES 3
@@ -27,12 +17,47 @@
 #define INKY_SCATTER_TARGET (coordinates){BOARD_HEIGHT - 2, BOARD_WIDTH - 4}
 #define CLYDE_SCATTER_TARGET (coordinates){BOARD_WIDTH - 2, 0}
 
+#define RESET "\033[0m"
+#define YELLOW "\033[38;5;226m"
+#define LIGHT_YELLOW "\033[38;5;229m"
+#define RED "\033[38;5;196m"
+#define PINK "\033[38;5;219m"
+#define CYAN "\033[38;5;51m"
+#define ORANGE "\033[38;5;214m"
+#define BLUE "\033[38;5;20m"
+
+#define PACMAN_ICON_UP "v"
+#define PACMAN_ICON_DOWN "^"
+#define PACMAN_ICON_LEFT ">"
+#define PACMAN_ICON_RIGHT "<"
+
+#define DOT_ICON "•"
+#define POWER_DOT_ICON "O"
+
+#define GHOST_ICON "^"
+
+#define WALL_ICON "#"
+
+#define LIFE_ICON PACMAN_ICON_LEFT
+
 #define SCORE_FILE_PATH "/home/%s/.config/pacman-score.txt"
 
 #include "coordinates.h"
 #include "pacman.h"
 #include "ghost.h"
 #include <stdint.h>
+
+typedef enum entity_id {
+    WALL_ID = 0,
+    EMPTY_ID,
+    DOT_ID,
+    POWER_DOT_ID,
+    PACMAN_ID,
+    BLINKY_ID,
+    PINKY_ID,
+    INKY_ID,
+    CLYDE_ID
+} entity_id;
 
 typedef struct board {
     uint8_t **board;
