@@ -18,6 +18,7 @@
 #define CLYDE_SCATTER_TARGET (coordinates){BOARD_WIDTH - 2, 0}
 
 #define RESET "\033[0m"
+#define BLACK_BACKGROUND "\033[48;5;16m"
 #define YELLOW "\033[38;5;226m"
 #define LIGHT_YELLOW "\033[38;5;229m"
 #define RED "\033[38;5;196m"
@@ -32,11 +33,12 @@
 #define PACMAN_ICON_RIGHT "<"
 
 #define DOT_ICON "•"
-#define POWER_DOT_ICON "O"
+#define POWER_DOT_ICON "@"
 
 #define GHOST_ICON "^"
 
 #define WALL_ICON "#"
+#define HOME_DOOR_ICON "-"
 
 #define LIFE_ICON PACMAN_ICON_LEFT
 
@@ -49,6 +51,7 @@
 
 typedef enum entity_id {
     WALL_ID = 0,
+    HOME_DOOR_ID,
     EMPTY_ID,
     DOT_ID,
     POWER_DOT_ID,
