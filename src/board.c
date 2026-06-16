@@ -97,25 +97,26 @@ int is_valid(coordinates coord,
 }
 
 void update_board(board *board) {
+    pacman *pacman = board->pacman;
+
     ghost *blinky = board->blinky;
     ghost *pinky = board->pinky;
     ghost *inky = board->inky;
     ghost *clyde = board->clyde;
 
+    board->board[pacman->last_position.Y][pacman->last_position.X] = EMPTY_ID;
+    
     board->board[blinky->last_position.Y][blinky->last_position.X] = EMPTY_ID;
     board->board[pinky->last_position.Y][pinky->last_position.X] = EMPTY_ID;
     board->board[inky->last_position.Y][inky->last_position.X] = EMPTY_ID;
     board->board[clyde->last_position.Y][clyde->last_position.X] = EMPTY_ID;
 
+    board->board[pacman->position.Y][pacman->position.X] = pacman->id;
+    
     board->board[blinky->position.Y][blinky->position.X] = blinky->id;
     board->board[pinky->position.Y][pinky->position.X] = pinky->id;
     board->board[inky->position.Y][inky->position.X] = inky->id;
     board->board[clyde->position.Y][clyde->position.X] = clyde->id;
-
-    pacman *pacman = board->pacman;
-
-    board->board[pacman->last_position.Y][pacman->last_position.X] = EMPTY_ID;
-    board->board[pacman->position.Y][pacman->position.X] = pacman->id;
 
     for(int i = 0; i < board->remaining_dots; i++) {
         coordinates curr_dot = board->dots_positions[i];
