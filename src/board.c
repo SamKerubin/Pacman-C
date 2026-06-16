@@ -45,6 +45,12 @@ board *init_board() {
 
 void end_game(board *board) {
 
+static inline int is_wall(coordinates coord, uint8_t **board) {
+    return board[coord.Y][coord.X] == WALL_ID;
+}
+
+static inline int is_ghost(coordinates coord, uint8_t **board) {
+    return board[coord.Y][coord.X] >= BLINKY_ID && board[coord.Y][coord.X] <= CLYDE_ID;
 }
 
 int is_valid(coordinates coord,
@@ -131,7 +137,9 @@ void eat_ghost(board *board) {
 }
 
 void eat_dot(board *board) {
-
+    board->dots_eaten++;
+    board->preferred_ghost->dot_counter++;
+    board->score += SCORE_PER_DOT;
 }
 
 void eat_power_dot(board *board) {
