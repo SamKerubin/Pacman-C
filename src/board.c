@@ -1,4 +1,5 @@
 #include "board.h"
+#include "board_data.h"
 #include "coordinates.h"
 #include "ghost.h"
 #include "pacman.h"
@@ -15,26 +16,35 @@ board *init_board() {
 
     for (int i = 0; i < BOARD_HEIGHT; i++) {
         for (int j = 0; j < BOARD_WIDTH; j++) {
-            b->board[i][j] = EMPTY_ID;
+            if (BOARD[i][j] == DOT_ID && b->remaining_dots < TOTAL_DOTS) {
+                b->dots_positions[b->remaining_dots++] = (coordinates){i, j};
+            }
+
+            if (BOARD[i][j] == POWER_DOT_ID && b->remaining_power_dots < TOTAL_POWER_DOTS) {
+                b->power_dots_positions[b->remaining_power_dots++] = (coordinates){i, j};
+            }
+
+            b->board[i][j] = BOARD[i][j];
         }
     }
 
-    set_walls(b);
+    b->lifes = STARTER_LIFES;
 
-    b->blinky = init_ghost(BLINKY_ID, (coordinates){});
+    b->blinky = init_ghost(BLINKY_ID, BLINKY_INIT_POSITION);
     b->blinky->state = SCATTER;
 
     b->board[b->blinky->position.Y][b->blinky->position.X] = b->blinky->id;
 
-    b->pinky = init_ghost(PINKY_ID, (coordinates){});
-    b->inky = init_ghost(INKY_ID, (coordinates){});
-    b->clyde = init_ghost(CLYDE_ID, (coordinates){});
+    b->pinky = init_ghost(PINKY_ID, PINKY_INIT_POSITION);
+    b->inky = init_ghost(INKY_ID, INKY_INIT_POSITION);
+    b->clyde = init_ghost(CLYDE_ID, CLYDE_INIT_POSITION);
 
     b->board[b->pinky->position.Y][b->pinky->position.X] = b->pinky->id;
     b->board[b->inky->position.Y][b->inky->position.X] = b->inky->id;
     b->board[b->clyde->position.Y][b->clyde->position.X] = b->clyde->id;
 
-    b->pacman = init_pacman((coordinates){});
+    b->pacman = init_pacman(PACMAN_ID, PACMAN_INIT_POSITION);
+    b->board[b->pacman->position.Y][b->pacman->position.X] = b->pacman->id;
 
     return b;
 }

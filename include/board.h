@@ -17,6 +17,13 @@
 #define INKY_SCATTER_TARGET (coordinates){BOARD_HEIGHT - 2, BOARD_WIDTH - 4}
 #define CLYDE_SCATTER_TARGET (coordinates){BOARD_WIDTH - 2, 0}
 
+#define PACMAN_INIT_POSITION (coordinates){13, 26}
+
+#define BLINKY_INIT_POSITION (coordinates){13, 14}
+#define PINKY_INIT_POSITION (coordinates){13, 17}
+#define INKY_INIT_POSITION (coordinates){11, 17}
+#define CLYDE_INIT_POSITION (coordinates){15, 17}
+
 #define RESET "\033[0m"
 #define BLACK_BACKGROUND "\033[48;5;16m"
 #define YELLOW "\033[38;5;226m"
