@@ -91,12 +91,44 @@ int is_valid(coordinates coord,
             && board[coord.Y][coord.X] != id;
 }
 
+void update_board(board *board) {
+    ghost *blinky = board->blinky;
+    ghost *pinky = board->pinky;
+    ghost *inky = board->inky;
+    ghost *clyde = board->clyde;
+
+    board->board[blinky->last_position.Y][blinky->last_position.X] = EMPTY_ID;
+    board->board[pinky->last_position.Y][pinky->last_position.X] = EMPTY_ID;
+    board->board[inky->last_position.Y][inky->last_position.X] = EMPTY_ID;
+    board->board[clyde->last_position.Y][clyde->last_position.X] = EMPTY_ID;
+
+    board->board[blinky->position.Y][blinky->position.X] = blinky->id;
+    board->board[pinky->position.Y][pinky->position.X] = pinky->id;
+    board->board[inky->position.Y][inky->position.X] = inky->id;
+    board->board[clyde->position.Y][clyde->position.X] = clyde->id;
+
+    pacman *pacman = board->pacman;
+
+    board->board[pacman->last_position.Y][pacman->last_position.X] = EMPTY_ID;
+    board->board[pacman->position.Y][pacman->position.X] = pacman->id;
+
+    for(int i = 0; i < board->remaining_dots; i++) {
+        coordinates curr_dot = board->dots_positions[i];
+        board->board[curr_dot.Y][curr_dot.X] = DOT_ID;
+    }
+
+    for (int i = 0; i < board->remaining_power_dots; i++) {
+        coordinates curr_pow = board->power_dots_positions[i];
+        board->board[curr_pow.Y][curr_pow.X] = POWER_DOT_ID;
+    }
+}
+
 static void print_pacman(direction pacman_dir) {
     switch (pacman_dir) {
-        case UP: printf(YELLOW PACMAN_ICON_UP RESET); break;
-        case DOWN: printf(YELLOW PACMAN_ICON_DOWN RESET); break;
-        case LEFT: printf(YELLOW PACMAN_ICON_LEFT RESET); break;
-        case RIGHT: printf(YELLOW PACMAN_ICON_RIGHT RESET); break;
+        case UP: printf(BLACK_BACKGROUND YELLOW PACMAN_ICON_UP " " RESET); break;
+        case DOWN: printf(BLACK_BACKGROUND YELLOW PACMAN_ICON_DOWN " " RESET); break;
+        case LEFT: printf(BLACK_BACKGROUND YELLOW PACMAN_ICON_LEFT " " RESET); break;
+        case RIGHT: printf(BLACK_BACKGROUND YELLOW PACMAN_ICON_RIGHT " " RESET); break;
         default: break;
     }
 }

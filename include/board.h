@@ -4,7 +4,8 @@
 #define BOARD_WIDTH 28
 #define BOARD_HEIGHT 36
 
-#define TOTAL_DOTS 244
+#define TOTAL_DOTS 240
+#define TOTAL_POWER_DOTS 4
 
 #define STARTER_LIFES 3
 
@@ -79,10 +80,10 @@ typedef struct board {
     ghost *inky;
     ghost *clyde;
     ghost *preferred_ghost;
-    // coordinates power_dots_positions[TOTAL_POWER_DOTS];
-    // uint8_t ghosts_eaten;
-    // uint8_t power_dots_count;
-    uint8_t dots_eaten;
+    coordinates dots_positions[TOTAL_DOTS];
+    coordinates power_dots_positions[TOTAL_POWER_DOTS];
+    uint8_t remaining_dots;
+    uint8_t remaining_power_dots;
     uint32_t score;
     uint16_t lifes;
     uint16_t level;
@@ -96,6 +97,7 @@ int is_valid(coordinates coord,
                     uint8_t **board,
                     uint8_t id);
 
+void update_board(board *board);
 void print_board(board *board);
 
 int move_pacman(board *board, direction d);
