@@ -11,7 +11,9 @@ coordinates find_shortest_path(uint8_t id, uint8_t **board,
     }
 
     coordinates shortest = {-1, -1};
-    float shortest_distance = INFINITY;
+    int shortest_distance = INT_MAX;
+    int shortest_priority = 0;
+
     for (int i = 0; i < 4; i++) {
         coordinates adj_coord = (coordinates){start.X + DIR_X[i], start.Y + DIR_Y[i]};
 
@@ -19,10 +21,11 @@ coordinates find_shortest_path(uint8_t id, uint8_t **board,
             continue;
         }
 
-        float euclidean_distance = coordinate_distance_to(adj_coord, end);
-        if (euclidean_distance < shortest_distance) {
-            shortest_distance = euclidean_distance;
+        int manhattan_distance = manhattan_coordinate_distance_to(adj_coord, end);
+        if (manhattan_distance < shortest_distance || (manhattan_distance == shortest_distance && i < shortest_priority)) {
+            shortest_distance = manhattan_distance;
             shortest = adj_coord;
+            shortest_priority = i;
         }
     }
 

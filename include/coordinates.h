@@ -1,6 +1,7 @@
 #ifndef COORDINATES_H
 #define COORDINATES_H
 
+#include <stdlib.h>
 #ifndef SQUARE
 #define SQUARE(X) ((X) * (X))
 #endif // !SQUARE
@@ -43,8 +44,12 @@ static inline coordinates coordinates_diff(coordinates coord_A, coordinates coor
     return (coordinates){coord_A.X - coord_B.X, coord_A.Y - coord_B.Y};
 }
 
-static inline float coordinate_distance_to(coordinates coord_A, coordinates coord_B) {
+static inline float euclidean_coordinate_distance_to(coordinates coord_A, coordinates coord_B) {
     return sqrt(SQUARE(coord_A.X - coord_B.X) + SQUARE(coord_A.Y - coord_B.Y));
+}
+
+static inline int manhattan_coordinate_distance_to(coordinates coord_A, coordinates coord_B) {
+    return abs(coord_A.X - coord_B.X) + abs(coord_A.Y - coord_B.Y);
 }
 
 static inline direction get_direction_from_input(char c) {

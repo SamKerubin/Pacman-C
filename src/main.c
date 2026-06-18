@@ -1,7 +1,25 @@
 #include "board.h"
-#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 int main() {
-    printf("%zu\n", sizeof(board));
-    printf("%zu\n", sizeof(ghost));
+    board *board = init_board();
+ 
+    system("clear");
+    print_board(board);
+
+    move_pacman(board, RIGHT);
+    update_board(board);
+
+    while (1) {
+        move_ghosts(board);
+        usleep(1000000);
+        move_pacman(board, RIGHT);
+        update_board(board);
+        system("clear");
+        print_board(board);
+    }
+    
+    end_game(board);
     return 0;
 }

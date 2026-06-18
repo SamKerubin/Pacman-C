@@ -10,17 +10,16 @@ static void fill_board(board *board) {
     for (int i = 0; i < BOARD_HEIGHT; i++) {
         for (int j = 0; j < BOARD_WIDTH; j++) {
             if (BOARD[i][j] == DOT_ID && board->remaining_dots < TOTAL_DOTS) {
-                board->dots_positions[board->remaining_dots++] = (coordinates){i, j};
+                board->dots_positions[board->remaining_dots++] = (coordinates){j, i};
             }
 
             if (BOARD[i][j] == POWER_DOT_ID && board->remaining_power_dots < TOTAL_POWER_DOTS) {
-                board->power_dots_positions[board->remaining_power_dots++] = (coordinates){i, j};
+                board->power_dots_positions[board->remaining_power_dots++] = (coordinates){j, i};
             }
 
             board->board[i][j] = BOARD[i][j];
         }
     }
-
 }
 
 board *init_board() {
@@ -74,13 +73,12 @@ void end_game(board *board) {
     free(board);
 }
 
-
 int is_inside_bounds(coordinates coord) {
     return (coord.X < BOARD_HEIGHT && coord.X >= 0)
             && (coord.Y < BOARD_WIDTH && coord.Y >= 0);
 }
 
-static inline int is_wall(coordinates coord, uint8_t **board) {
+int is_wall(coordinates coord, uint8_t **board) {
     return board[coord.Y][coord.X] == WALL_ID;
 }
 
@@ -104,19 +102,15 @@ void update_board(board *board) {
     ghost *inky = board->inky;
     ghost *clyde = board->clyde;
 
+    board->board[BOARD_HEIGHT / 2 - 3][BOARD_WIDTH / 2 - 1] = HOME_DOOR_ID;
+    board->board[BOARD_HEIGHT / 2 - 3][BOARD_WIDTH / 2] = HOME_DOOR_ID;
+
     board->board[pacman->last_position.Y][pacman->last_position.X] = EMPTY_ID;
-    
+
     board->board[blinky->last_position.Y][blinky->last_position.X] = EMPTY_ID;
     board->board[pinky->last_position.Y][pinky->last_position.X] = EMPTY_ID;
     board->board[inky->last_position.Y][inky->last_position.X] = EMPTY_ID;
     board->board[clyde->last_position.Y][clyde->last_position.X] = EMPTY_ID;
-
-    board->board[pacman->position.Y][pacman->position.X] = pacman->id;
-    
-    board->board[blinky->position.Y][blinky->position.X] = blinky->id;
-    board->board[pinky->position.Y][pinky->position.X] = pinky->id;
-    board->board[inky->position.Y][inky->position.X] = inky->id;
-    board->board[clyde->position.Y][clyde->position.X] = clyde->id;
 
     for(int i = 0; i < board->remaining_dots; i++) {
         coordinates curr_dot = board->dots_positions[i];
@@ -127,6 +121,13 @@ void update_board(board *board) {
         coordinates curr_pow = board->power_dots_positions[i];
         board->board[curr_pow.Y][curr_pow.X] = POWER_DOT_ID;
     }
+
+    board->board[pacman->position.Y][pacman->position.X] = pacman->id;
+
+    board->board[blinky->position.Y][blinky->position.X] = blinky->id;
+    board->board[pinky->position.Y][pinky->position.X] = pinky->id;
+    board->board[inky->position.Y][inky->position.X] = inky->id;
+    board->board[clyde->position.Y][clyde->position.X] = clyde->id;
 }
 
 static void print_pacman(direction pacman_dir) {
@@ -172,18 +173,18 @@ void print_board(board *board) {
     for (int i = 0; i < board->lifes; i++) {
         printf(BLACK_BACKGROUND YELLOW LIFE_ICON " " RESET);
     }
-    printf(BLACK_BACKGROUND "                                                  \n" RESET);
+    printf(BLACK_BACKGROUND "                                                  " RESET "\n");
 }
 
 int move_pacman(board *board, direction d) {
     pacman *pacman = board->pacman;
+    pacman->current_direction = d;
 
-    direction new_direction = d;
-
-    coordinates direction = {DIR_X[d], DIR_Y[d]};
+    coordinates direction = {DIR_Y[d], DIR_X[d]};
     coordinates pacman_new_pos = coordinates_sum(pacman->position, direction);
+
     if (is_wall(pacman_new_pos, board->board)) {
-        new_direction = pacman->last_direction;
+        return 1;
     }
 
     if (!is_inside_bounds(pacman_new_pos)) {
@@ -191,8 +192,21 @@ int move_pacman(board *board, direction d) {
         pacman_new_pos.Y = (pacman_new_pos.Y % BOARD_WIDTH + BOARD_WIDTH) % BOARD_WIDTH;
     }
 
-    pacman->last_direction = pacman->current_direction;
-    pacman->current_direction = new_direction;
+    if (is_ghost(pacman_new_pos, board->board)) {
+        return 0;
+    }
+
+    if (is_dot(pacman_new_pos, board->board)) {
+        eat_dot(board);
+    }
+
+    if (is_power_dot(pacman_new_pos, board->board)) {
+        eat_power_dot(board);
+    }
+
+    pacman->last_position = pacman->position;
+    pacman->position = pacman_new_pos;
+
     return 1;
 }
 
@@ -209,17 +223,31 @@ void eat_ghost(board *board) {
 
 void eat_dot(board *board) {
     board->remaining_dots--;
-    board->preferred_ghost->dot_counter++;
+    // board->preferred_ghost->dot_counter++;
     board->score += SCORE_PER_DOT;
 }
 
 void eat_power_dot(board *board) {
     board->remaining_dots--;
-    board->preferred_ghost->dot_counter++;
+    // board->preferred_ghost->dot_counter++;
     board->score += SCORE_PER_DOT;
 }
 
-static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board, uint8_t id) {
+static coordinates get_init_ghost_target(coordinates initial_coord, ghost *ghost) {
+    if (ghost->current_direction == UP) {
+        ghost->current_direction = DOWN;
+        return coordinates_sum(initial_coord, (coordinates){DIR_Y[DOWN], DIR_X[DOWN]});
+    }
+
+    if (ghost->current_direction == DOWN) {
+        ghost->current_direction = UP;
+        return coordinates_sum(initial_coord, (coordinates){DIR_Y[UP], DIR_X[UP]});
+    }
+
+    return ghost->target_coordinate;
+}
+
+static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board, uint8_t id, ghost_state state) {
     coordinates adj[4] = {0};
     for (int i = 0; i < 4; i++) {
         adj[i] = (coordinates){start.X + DIR_X[i], start.Y + DIR_Y[i]};
@@ -261,7 +289,7 @@ static coordinates pinky_chase_target(board *board) {
 
 coordinates get_pinky_target_position(board *board) {
     switch (board->pinky->state) {
-        case INIT: return board->pinky->position;
+        case INIT: return get_init_ghost_target(PINKY_INIT_POSITION, board->pinky);
         case SCATTER: return PINKY_SCATTER_TARGET;
         case CHASE: return pinky_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->pinky->position,
@@ -294,7 +322,7 @@ static coordinates inky_chase_target(board *board) {
 
 coordinates get_inky_target_position(board *board) {
     switch (board->inky->state) {
-        case INIT: return board->inky->position;
+        case INIT: return get_init_ghost_target(INKY_INIT_POSITION, board->inky);
         case SCATTER: return INKY_SCATTER_TARGET;
         case CHASE: return inky_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->inky->position,
@@ -307,7 +335,7 @@ coordinates get_inky_target_position(board *board) {
 }
 
 static coordinates clyde_chase_target(board *board) {
-    if (coordinate_distance_to(board->pacman->position, board->clyde->position) > 8.0f) {
+    if (euclidean_coordinate_distance_to(board->pacman->position, board->clyde->position) > 8.0f) {
         return board->pacman->position;
     }
 
@@ -317,12 +345,14 @@ static coordinates clyde_chase_target(board *board) {
 
 coordinates get_clyde_target_position(board *board) {
     switch (board->clyde->state) {
-        case INIT: return board->clyde->position;
+        case INIT: return get_init_ghost_target(CLYDE_INIT_POSITION, board->clyde);
         case SCATTER: return CLYDE_SCATTER_TARGET;
         case CHASE: return clyde_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->clyde->position,
                                                           board->board,
-                                                          board->clyde->id); 
+                                                          board->clyde->id,
+                                                          board->clyde->state); 
+        case OUT_OF_HOUSE: return HOME_POSITION;
         case EATEN: return HOME_POSITION;
         default:
             return (coordinates){-1, -1};
