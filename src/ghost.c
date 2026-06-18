@@ -44,8 +44,22 @@ int is_valid_ghost_movement(coordinates coord, uint8_t ** board, uint8_t ghost_i
     return valid;
 }
 
+static void set_ghost_direction(ghost *ghost) {
+    coordinates curr = ghost->position;
+    coordinates next = ghost->next_position;
+
+    if (curr.Y > next.Y) {
+        ghost->current_direction = DOWN;
+    } else if (curr.Y < next.Y) {
+        ghost->current_direction = UP;
+    } else if (curr.X > next.X) {
+        ghost->current_direction = LEFT;
+    } else {
+        ghost->current_direction = RIGHT;
+    }
+}
+
 void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
-    // TODO: Set ghost direction based on current and last position
     ghost->last_position = ghost->position;
     ghost->position = ghost->next_position;
 
@@ -59,4 +73,6 @@ void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
     ghost->next_position = find_shortest_path(ghost->id, ghost->state,
                                               board, ghost->position,
                                               ghost->target_coordinate);
+
+    set_ghost_direction(ghost);
 }
