@@ -1,7 +1,7 @@
 #include "pathfinding.h"
 #include "board.h"
 #include "coordinates.h"
-#include <math.h>
+#include <limits.h>
 
 coordinates find_shortest_path(uint8_t id, uint8_t **board,
                                coordinates start,

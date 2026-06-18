@@ -196,14 +196,6 @@ int move_pacman(board *board, direction d) {
         return 0;
     }
 
-    if (is_dot(pacman_new_pos, board->board)) {
-        eat_dot(board);
-    }
-
-    if (is_power_dot(pacman_new_pos, board->board)) {
-        eat_power_dot(board);
-    }
-
     pacman->last_position = pacman->position;
     pacman->position = pacman_new_pos;
 
@@ -247,7 +239,7 @@ static coordinates get_init_ghost_target(coordinates initial_coord, ghost *ghost
     return ghost->target_coordinate;
 }
 
-static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board, uint8_t id, ghost_state state) {
+static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board, uint8_t id) {
     coordinates adj[4] = {0};
     for (int i = 0; i < 4; i++) {
         adj[i] = (coordinates){start.X + DIR_X[i], start.Y + DIR_Y[i]};
@@ -350,9 +342,7 @@ coordinates get_clyde_target_position(board *board) {
         case CHASE: return clyde_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->clyde->position,
                                                           board->board,
-                                                          board->clyde->id,
-                                                          board->clyde->state); 
-        case OUT_OF_HOUSE: return HOME_POSITION;
+                                                          board->clyde->id); 
         case EATEN: return HOME_POSITION;
         default:
             return (coordinates){-1, -1};

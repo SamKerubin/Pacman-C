@@ -34,16 +34,10 @@ void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
 
     ghost->target_coordinate = target;
 
-    ghost->next_position = find_shortest_path(ghost->id, (ghost->state != INIT && ghost->state != EATEN && ghost->state != OUT_OF_HOUSE),
+    ghost->next_position = find_shortest_path(ghost->id,
                                               board, ghost->position,
                                               ghost->target_coordinate);
     printf("next: %d -> %d, %d\n", ghost->id, ghost->next_position.Y, ghost->next_position.X);
     printf("current: %d -> %d, %d\n", ghost->id, ghost->position.Y, ghost->position.X);
     printf("target: %d -> %d, %d\n", ghost->id, ghost->target_coordinate.Y, ghost->target_coordinate.X);
 }
-
-    }
-
-    ghost_execute_pattern(ghost, board);
-}
-
