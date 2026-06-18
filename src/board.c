@@ -22,6 +22,23 @@ static void fill_board(board *board) {
     }
 }
 
+static preferred_ghost *init_preferred_ghost_list() {
+    preferred_ghost *head = (preferred_ghost *)calloc(1, sizeof(preferred_ghost));
+    preferred_ghost *next = (preferred_ghost *)calloc(1, sizeof(preferred_ghost));
+    preferred_ghost *next_next = (preferred_ghost *)calloc(1, sizeof(preferred_ghost));
+    preferred_ghost *null = (preferred_ghost *)(calloc(1, sizeof(preferred_ghost)));
+
+    head->next = next;
+    next->next = next_next;
+    next_next->next = null;
+
+    next->prev = head;
+    next_next->prev = next;
+    null->prev = next_next;
+
+    return head;
+}
+
 board *init_board() {
     board *b = (board *)calloc(1, sizeof(board));
 
@@ -43,6 +60,11 @@ board *init_board() {
     b->inky = init_ghost(INKY_ID, INKY_INIT_POSITION);
     b->clyde = init_ghost(CLYDE_ID, CLYDE_INIT_POSITION);
 
+    b->preferred_ghost = init_preferred_ghost_list();
+    b->preferred_ghost->preferred = b->pinky;
+    b->preferred_ghost->next->preferred = b->inky;
+    b->preferred_ghost->next->next->preferred = b->clyde;
+
     b->board[b->pinky->position.Y][b->pinky->position.X] = b->pinky->id;
     b->board[b->inky->position.Y][b->inky->position.X] = b->inky->id;
     b->board[b->clyde->position.Y][b->clyde->position.X] = b->clyde->id;
@@ -62,6 +84,12 @@ void end_game(board *board) {
         free(board->board[i]);
     }
     free(board->board);
+
+    preferred_ghost *head = board->preferred_ghost;
+    free(head->next->next->next);
+    free(head->next->next);
+    free(head->next);
+    free(head);
 
     free_ghost(board->blinky);
     free_ghost(board->pinky);
@@ -107,6 +135,10 @@ int is_valid(coordinates coord,
 }
 
 void update_board(board *board) {
+    if (board->score % 10000 == 0) {
+        board->lifes++;
+    }
+
     pacman *pacman = board->pacman;
 
     ghost *blinky = board->blinky;
@@ -249,7 +281,11 @@ void eat_dot(coordinates dot_pos, board *board) {
     }
 
     board->remaining_dots--;
-    // board->preferred_ghost->dot_counter++;
+
+    if (board->preferred_ghost->preferred) {
+        board->preferred_ghost->preferred->dot_counter++;
+    }
+
     board->score += SCORE_PER_DOT;
 }
 

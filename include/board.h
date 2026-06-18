@@ -72,7 +72,12 @@ typedef enum entity_id {
     CLYDE_ID
 } entity_id;
 
-// FIX: preferred_ghost behavior
+typedef struct preferred_ghost {
+    ghost *preferred;
+    struct preferred_ghost *prev;
+    struct preferred_ghost *next;
+} preferred_ghost;
+
 typedef struct board {
     uint8_t **board;
     pacman *pacman;
@@ -80,7 +85,7 @@ typedef struct board {
     ghost *pinky;
     ghost *inky;
     ghost *clyde;
-    ghost *preferred_ghost;
+    preferred_ghost *preferred_ghost;
     coordinates dots_positions[TOTAL_DOTS];
     coordinates power_dots_positions[TOTAL_POWER_DOTS];
     uint8_t remaining_dots;

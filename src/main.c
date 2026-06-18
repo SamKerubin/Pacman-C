@@ -19,7 +19,7 @@ int main() {
         system("clear");
         print_board(board);
     }
-    
+
     end_game(board);
     return 0;
 }
