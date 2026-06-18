@@ -83,7 +83,11 @@ int is_wall(coordinates coord, uint8_t **board) {
 }
 
 static inline int is_ghost(coordinates coord, uint8_t **board) {
-    return board[coord.Y][coord.X] >= BLINKY_ID && board[coord.Y][coord.X] <= CLYDE_ID;
+    uint8_t tile = board[coord.Y][coord.X];
+    return tile == BLINKY_ID
+           || tile == PINKY_ID
+           || tile == INKY_ID
+           || tile == CLYDE_ID;
 }
 
 int is_valid(coordinates coord,

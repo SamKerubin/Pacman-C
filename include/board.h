@@ -93,9 +93,7 @@ board *init_board();
 void end_game(board *board);
 
 int is_inside_bounds(coordinates coord);
-int is_valid(coordinates coord,
-                    uint8_t **board,
-                    uint8_t id);
+int is_wall(coordinates coord, uint8_t **board);
 
 void update_board(board *board);
 void print_board(board *board);

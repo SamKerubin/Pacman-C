@@ -2,7 +2,6 @@
 #include "board.h"
 #include "coordinates.h"
 #include "pathfinding.h"
-#include <stdio.h>
 #include <stdlib.h>
 
 ghost *init_ghost(uint8_t id, coordinates init_position) {
@@ -23,6 +22,20 @@ void free_ghost(ghost *ghost) {
     free(ghost);
 }
 
+static inline int can_enter_home(ghost_state state) {
+    return state == EATEN || state == OUT_OF_HOUSE;
+}
+
+int is_valid_ghost_movement(coordinates coord, uint8_t ** board, uint8_t ghost_id, ghost_state state) {
+    int valid = !is_wall(coord, board) && board[coord.Y][coord.X] != ghost_id;
+
+    if (!can_enter_home(state)) {
+        valid = valid && board[coord.Y][coord.X] != HOME_DOOR_ID;
+    }
+
+    return valid;
+}
+
 void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
     ghost->last_position = ghost->position;
     ghost->position = ghost->next_position;
@@ -34,10 +47,7 @@ void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
 
     ghost->target_coordinate = target;
 
-    ghost->next_position = find_shortest_path(ghost->id,
+    ghost->next_position = find_shortest_path(ghost->id, ghost->state,
                                               board, ghost->position,
                                               ghost->target_coordinate);
-    printf("next: %d -> %d, %d\n", ghost->id, ghost->next_position.Y, ghost->next_position.X);
-    printf("current: %d -> %d, %d\n", ghost->id, ghost->position.Y, ghost->position.X);
-    printf("target: %d -> %d, %d\n", ghost->id, ghost->target_coordinate.Y, ghost->target_coordinate.X);
 }
