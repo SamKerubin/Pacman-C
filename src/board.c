@@ -82,6 +82,14 @@ int is_wall(coordinates coord, uint8_t **board) {
     return board[coord.Y][coord.X] == WALL_ID;
 }
 
+static inline int is_dot(coordinates coord, uint8_t **board) {
+    return board[coord.Y][coord.X] == DOT_ID;
+}
+
+static inline int is_power_dot(coordinates coord, uint8_t **board) {
+    return board[coord.Y][coord.X] == POWER_DOT_ID;
+}
+
 static inline int is_ghost(coordinates coord, uint8_t **board) {
     uint8_t tile = board[coord.Y][coord.X];
     return tile == BLINKY_ID
@@ -187,7 +195,8 @@ int move_pacman(board *board, direction d) {
     coordinates direction = {DIR_Y[d], DIR_X[d]};
     coordinates pacman_new_pos = coordinates_sum(pacman->position, direction);
 
-    if (is_wall(pacman_new_pos, board->board)) {
+    if (is_wall(pacman_new_pos, board->board)
+        || board->board[pacman_new_pos.Y][pacman_new_pos.X] == HOME_DOOR_ID) {
         return 1;
     }
 
@@ -200,6 +209,14 @@ int move_pacman(board *board, direction d) {
         return 0;
     }
 
+    if (is_dot(pacman_new_pos, board->board)) {
+        eat_dot(pacman_new_pos, board);
+    }
+
+    if (is_power_dot(pacman_new_pos, board->board)) {
+        eat_power_dot(pacman_new_pos, board);
+    }
+
     pacman->last_position = pacman->position;
     pacman->position = pacman_new_pos;
 
@@ -207,6 +224,9 @@ int move_pacman(board *board, direction d) {
 }
 
 void move_ghosts(board *board) {
+    // TODO: Add ghost state transition
+    // Example: INIT -> OUT_OF_HOUSE -> SCATTER -> CHASE
+    // Might need a timer for these transitions too
     move_ghost(board->blinky, board->board, get_blinky_target_position(board));
     move_ghost(board->pinky, board->board, get_pinky_target_position(board));
     move_ghost(board->inky, board->board, get_inky_target_position(board));
@@ -217,16 +237,52 @@ void eat_ghost(board *board) {
     (void)board;
 }
 
-void eat_dot(board *board) {
+void eat_dot(coordinates dot_pos, board *board) {
+    for (int i = 0; i < board->remaining_dots; i++) {
+        coordinates curr_dot = board->dots_positions[i];
+        if (compare_coordinates(curr_dot, dot_pos)) {
+            coordinates last = board->dots_positions[board->remaining_dots - 1];
+            board->dots_positions[board->remaining_dots - 1] = curr_dot;
+            board->dots_positions[i] = last;
+            break;
+        }
+    }
+
     board->remaining_dots--;
     // board->preferred_ghost->dot_counter++;
     board->score += SCORE_PER_DOT;
 }
 
-void eat_power_dot(board *board) {
-    board->remaining_dots--;
+static void make_ghosts_frightened(board *board) {
+    ghost *blinky = board->blinky;
+    ghost *pinky = board->pinky;
+    ghost *inky = board->inky;
+    ghost *clyde = board->clyde;
+
+    blinky->state = FRIGHTENED;
+    pinky->state = FRIGHTENED;
+    inky->state = FRIGHTENED;
+    clyde->state = FRIGHTENED;
+
+    // TODO: Handle movement invertion of the ghost when frightened
+}
+
+void eat_power_dot(coordinates pow_pos, board *board) {
+    for (int i = 0; i < board->remaining_power_dots; i++) {
+        coordinates curr_pow = board->power_dots_positions[i];
+        if (compare_coordinates(curr_pow, pow_pos)) {
+            coordinates last = board->power_dots_positions[board->remaining_power_dots - 1];
+            board->power_dots_positions[board->remaining_power_dots - 1] = curr_pow;
+            board->power_dots_positions[i] = last;
+            break;
+        }
+    }
+
+    board->remaining_power_dots--;
     // board->preferred_ghost->dot_counter++;
     board->score += SCORE_PER_DOT;
+
+    make_ghosts_frightened(board);
 }
 
 static coordinates get_init_ghost_target(coordinates initial_coord, ghost *ghost) {

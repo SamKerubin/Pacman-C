@@ -72,6 +72,7 @@ typedef enum entity_id {
     CLYDE_ID
 } entity_id;
 
+// FIX: preferred_ghost behavior
 typedef struct board {
     uint8_t **board;
     pacman *pacman;
@@ -102,8 +103,8 @@ int move_pacman(board *board, direction d);
 void move_ghosts(board *board);
 
 void eat_ghost(board *board);
-void eat_dot(board *board);
-void eat_power_dot(board *board);
+void eat_dot(coordinates dot_pos, board *board);
+void eat_power_dot(coordinates pow_pos, board *board);
 
 coordinates get_blinky_target_position(board *board);
 coordinates get_pinky_target_position(board *board);

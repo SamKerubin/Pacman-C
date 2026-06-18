@@ -37,6 +37,7 @@ int is_valid_ghost_movement(coordinates coord, uint8_t ** board, uint8_t ghost_i
 }
 
 void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
+    // TODO: Set ghost direction based on current and last position
     ghost->last_position = ghost->position;
     ghost->position = ghost->next_position;
 

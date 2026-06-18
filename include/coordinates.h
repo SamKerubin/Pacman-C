@@ -1,12 +1,12 @@
 #ifndef COORDINATES_H
 #define COORDINATES_H
 
-#include <stdlib.h>
 #ifndef SQUARE
 #define SQUARE(X) ((X) * (X))
 #endif // !SQUARE
 
 #include <math.h>
+#include <stdlib.h>
 
 static const int DIR_X[5] = {0, 0, -1, 1, 0};
 static const int DIR_Y[5] = {-1, 1, 0, 0, 0};
