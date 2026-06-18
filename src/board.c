@@ -126,16 +126,9 @@ static inline int is_ghost(coordinates coord, uint8_t **board) {
            || tile == CLYDE_ID;
 }
 
-int is_valid(coordinates coord,
-                    uint8_t **board,
-                    uint8_t id) {
-    return is_inside_bounds(coord)
-            && !is_wall(coord, board)
-            && board[coord.Y][coord.X] != id;
-}
 
 void update_board(board *board) {
-    if (board->score % 10000 == 0) {
+    if (board->score > 0 && board->score % 10000 == 0) {
         board->lifes++;
     }
 
@@ -315,27 +308,29 @@ void eat_power_dot(coordinates pow_pos, board *board) {
     }
 
     board->remaining_power_dots--;
-    // board->preferred_ghost->dot_counter++;
+
+    if (board->preferred_ghost->preferred) {
+        board->preferred_ghost->preferred->dot_counter++;
+    }
+
     board->score += SCORE_PER_DOT;
 
     make_ghosts_frightened(board);
 }
 
 static coordinates get_init_ghost_target(coordinates initial_coord, ghost *ghost) {
+    if (compare_coordinates(initial_coord, ghost->position)) {
+        return coordinates_sum(initial_coord, (coordinates){DIR_Y[ghost->current_direction], DIR_X[ghost->current_direction]});
+    }
+
     if (ghost->current_direction == UP) {
-        ghost->current_direction = DOWN;
         return coordinates_sum(initial_coord, (coordinates){DIR_Y[DOWN], DIR_X[DOWN]});
     }
 
-    if (ghost->current_direction == DOWN) {
-        ghost->current_direction = UP;
-        return coordinates_sum(initial_coord, (coordinates){DIR_Y[UP], DIR_X[UP]});
-    }
-
-    return ghost->target_coordinate;
+    return coordinates_sum(initial_coord, (coordinates){DIR_Y[UP], DIR_X[UP]});
 }
 
-static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board, uint8_t id) {
+static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board, uint8_t id, ghost_state state) {
     coordinates adj[4] = {0};
     for (int i = 0; i < 4; i++) {
         adj[i] = (coordinates){start.X + DIR_X[i], start.Y + DIR_Y[i]};
@@ -344,7 +339,7 @@ static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board,
     int r = -1;
     do {
         r = rand() % 4;
-    } while(!is_valid(adj[r], board, id));
+    } while(!is_valid_ghost_movement(adj[r], board, id, state));
 
     return adj[r];
 }
@@ -355,7 +350,8 @@ coordinates get_blinky_target_position(board *board) {
         case CHASE: return board->pacman->position;
         case FRIGHTENED: return get_random_valid_adjacent(board->blinky->position,
                                                           board->board,
-                                                          board->blinky->id); 
+                                                          board->blinky->id,
+                                                          board->blinky->state);
         case EATEN: return HOME_POSITION;
         case INIT:
         default:
@@ -382,7 +378,8 @@ coordinates get_pinky_target_position(board *board) {
         case CHASE: return pinky_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->pinky->position,
                                                           board->board,
-                                                          board->pinky->id); 
+                                                          board->pinky->id,
+                                                          board->pinky->state);
         case EATEN: return HOME_POSITION;
         default:
             return (coordinates){-1, -1};
@@ -415,7 +412,8 @@ coordinates get_inky_target_position(board *board) {
         case CHASE: return inky_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->inky->position,
                                                           board->board,
-                                                          board->inky->id); 
+                                                          board->inky->id,
+                                                          board->inky->state);
         case EATEN: return HOME_POSITION;
         default:
             return (coordinates){-1, -1};
@@ -438,7 +436,8 @@ coordinates get_clyde_target_position(board *board) {
         case CHASE: return clyde_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->clyde->position,
                                                           board->board,
-                                                          board->clyde->id); 
+                                                          board->clyde->id,
+                                                          board->clyde->state);
         case EATEN: return HOME_POSITION;
         default:
             return (coordinates){-1, -1};

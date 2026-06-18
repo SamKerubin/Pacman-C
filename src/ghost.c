@@ -26,8 +26,16 @@ static inline int can_enter_home(ghost_state state) {
     return state == EATEN || state == OUT_OF_HOUSE;
 }
 
+static inline int can_turn(ghost_state state) {
+    return state == INIT;
+}
+
 int is_valid_ghost_movement(coordinates coord, uint8_t ** board, uint8_t ghost_id, ghost_state state) {
-    int valid = !is_wall(coord, board) && board[coord.Y][coord.X] != ghost_id;
+    int valid = !is_wall(coord, board);
+
+    if (!can_turn(state)) {
+        valid = valid && board[coord.Y][coord.X] != ghost_id;
+    }
 
     if (!can_enter_home(state)) {
         valid = valid && board[coord.Y][coord.X] != HOME_DOOR_ID;
