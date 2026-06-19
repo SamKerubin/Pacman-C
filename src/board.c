@@ -22,23 +22,6 @@ static void fill_board(board *board) {
     }
 }
 
-static preferred_ghost *init_preferred_ghost_list() {
-    preferred_ghost *head = (preferred_ghost *)calloc(1, sizeof(preferred_ghost));
-    preferred_ghost *next = (preferred_ghost *)calloc(1, sizeof(preferred_ghost));
-    preferred_ghost *next_next = (preferred_ghost *)calloc(1, sizeof(preferred_ghost));
-    preferred_ghost *null = (preferred_ghost *)(calloc(1, sizeof(preferred_ghost)));
-
-    head->next = next;
-    next->next = next_next;
-    next_next->next = null;
-
-    next->prev = head;
-    next_next->prev = next;
-    null->prev = next_next;
-
-    return head;
-}
-
 board *init_board() {
     board *b = (board *)calloc(1, sizeof(board));
 
@@ -60,10 +43,11 @@ board *init_board() {
     b->inky = init_ghost(INKY_ID, INKY_INIT_POSITION);
     b->clyde = init_ghost(CLYDE_ID, CLYDE_INIT_POSITION);
 
-    b->preferred_ghost = init_preferred_ghost_list();
-    b->preferred_ghost->preferred = b->pinky;
-    b->preferred_ghost->next->preferred = b->inky;
-    b->preferred_ghost->next->next->preferred = b->clyde;
+    b->preferred_ghost[0] = b->pinky;
+    b->preferred_ghost[1] = b->inky;
+    b->preferred_ghost[2] = b->clyde;
+
+    b->current_counter_reference = &b->preferred_ghost[0]->dot_counter;
 
     b->board[b->pinky->position.Y][b->pinky->position.X] = b->pinky->id;
     b->board[b->inky->position.Y][b->inky->position.X] = b->inky->id;
@@ -84,12 +68,6 @@ void end_game(board *board) {
         free(board->board[i]);
     }
     free(board->board);
-
-    preferred_ghost *head = board->preferred_ghost;
-    free(head->next->next->next);
-    free(head->next->next);
-    free(head->next);
-    free(head);
 
     free_ghost(board->blinky);
     free_ghost(board->pinky);
@@ -139,15 +117,15 @@ void update_board(board *board) {
     ghost *inky = board->inky;
     ghost *clyde = board->clyde;
 
-    board->board[BOARD_HEIGHT / 2 - 3][BOARD_WIDTH / 2 - 1] = HOME_DOOR_ID;
-    board->board[BOARD_HEIGHT / 2 - 3][BOARD_WIDTH / 2] = HOME_DOOR_ID;
-
     board->board[pacman->last_position.Y][pacman->last_position.X] = EMPTY_ID;
 
     board->board[blinky->last_position.Y][blinky->last_position.X] = EMPTY_ID;
     board->board[pinky->last_position.Y][pinky->last_position.X] = EMPTY_ID;
     board->board[inky->last_position.Y][inky->last_position.X] = EMPTY_ID;
     board->board[clyde->last_position.Y][clyde->last_position.X] = EMPTY_ID;
+
+    board->board[BOARD_HEIGHT / 2 - 3][BOARD_WIDTH / 2 - 1] = HOME_DOOR_ID;
+    board->board[BOARD_HEIGHT / 2 - 3][BOARD_WIDTH / 2] = HOME_DOOR_ID;
 
     for(int i = 0; i < board->remaining_dots; i++) {
         coordinates curr_dot = board->dots_positions[i];
@@ -275,8 +253,8 @@ void eat_dot(coordinates dot_pos, board *board) {
 
     board->remaining_dots--;
 
-    if (board->preferred_ghost->preferred) {
-        board->preferred_ghost->preferred->dot_counter++;
+    if (board->current_ghost < 3) {
+        (*board->current_counter_reference)++;
     }
 
     board->score += SCORE_PER_DOT;
@@ -309,8 +287,8 @@ void eat_power_dot(coordinates pow_pos, board *board) {
 
     board->remaining_power_dots--;
 
-    if (board->preferred_ghost->preferred) {
-        board->preferred_ghost->preferred->dot_counter++;
+    if (board->current_ghost < 3) {
+        (*board->current_counter_reference)++;
     }
 
     board->score += SCORE_PER_DOT;
@@ -352,7 +330,7 @@ coordinates get_blinky_target_position(board *board) {
                                                           board->board,
                                                           board->blinky->id,
                                                           board->blinky->state);
-        case EATEN: return HOME_POSITION;
+        case EATEN: return IN_HOME_POSITION;
         case INIT:
         default:
             return (coordinates){-1, -1};
@@ -380,7 +358,7 @@ coordinates get_pinky_target_position(board *board) {
                                                           board->board,
                                                           board->pinky->id,
                                                           board->pinky->state);
-        case EATEN: return HOME_POSITION;
+        case EATEN: return IN_HOME_POSITION;
         default:
             return (coordinates){-1, -1};
     }
@@ -414,7 +392,7 @@ coordinates get_inky_target_position(board *board) {
                                                           board->board,
                                                           board->inky->id,
                                                           board->inky->state);
-        case EATEN: return HOME_POSITION;
+        case EATEN: return IN_HOME_POSITION;
         default:
             return (coordinates){-1, -1};
     }
@@ -426,7 +404,6 @@ static coordinates clyde_chase_target(board *board) {
     }
 
     return CLYDE_SCATTER_TARGET;
-
 }
 
 coordinates get_clyde_target_position(board *board) {
@@ -438,10 +415,9 @@ coordinates get_clyde_target_position(board *board) {
                                                           board->board,
                                                           board->clyde->id,
                                                           board->clyde->state);
-        case EATEN: return HOME_POSITION;
+        case EATEN: return IN_HOME_POSITION;
         default:
             return (coordinates){-1, -1};
-
     }
 }
 

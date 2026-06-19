@@ -20,7 +20,8 @@
 
 #define PACMAN_INIT_POSITION (coordinates){13, 26}
 
-#define HOME_POSITION (coordinates){13, 14}
+#define IN_HOME_POSITION (coordinates){13, 14}
+#define OUT_HOME_POSITION (coordinates){13, 16}
 
 #define BLINKY_INIT_POSITION (coordinates){13, 14}
 #define PINKY_INIT_POSITION (coordinates){13, 17}
@@ -72,12 +73,6 @@ typedef enum entity_id {
     CLYDE_ID
 } entity_id;
 
-typedef struct preferred_ghost {
-    ghost *preferred;
-    struct preferred_ghost *prev;
-    struct preferred_ghost *next;
-} preferred_ghost;
-
 typedef struct board {
     uint8_t **board;
     pacman *pacman;
@@ -85,7 +80,7 @@ typedef struct board {
     ghost *pinky;
     ghost *inky;
     ghost *clyde;
-    preferred_ghost *preferred_ghost;
+    ghost *preferred_ghost[3];
     coordinates dots_positions[TOTAL_DOTS];
     coordinates power_dots_positions[TOTAL_POWER_DOTS];
     uint8_t remaining_dots;
@@ -93,6 +88,7 @@ typedef struct board {
     uint32_t score;
     uint16_t lifes;
     uint16_t level;
+    uint8_t *current_counter_reference;
 } board;
 
 board *init_board();
