@@ -43,6 +43,10 @@ board *init_board() {
     b->inky = init_ghost(INKY_ID, INKY_INIT_POSITION);
     b->clyde = init_ghost(CLYDE_ID, CLYDE_INIT_POSITION);
 
+    b->pinky->dot_limit = PINKY_DOT_LIMIT;
+    b->inky->dot_limit = INKY_DOT_LIMIT;
+    b->clyde->dot_limit = CLYDE_DOT_LIMIT;
+
     b->preferred_ghost[0] = b->pinky;
     b->preferred_ghost[1] = b->inky;
     b->preferred_ghost[2] = b->clyde;
@@ -104,6 +108,31 @@ static inline int is_ghost(coordinates coord, uint8_t **board) {
            || tile == CLYDE_ID;
 }
 
+void update_ghosts(board *board) {
+    // ghost *blinky = board->blinky;
+    // ghost *pinky = board->pinky;
+    // ghost *inky = board->inky;
+    // ghost *clyde = board->clyde;
+
+    ghost *preferred = NULL;
+    if (board->current_ghost < 3) {
+        preferred = board->preferred_ghost[board->current_ghost];
+    }
+
+    if (preferred && *board->current_counter_reference >= preferred->dot_limit) {
+        preferred->state = OUT_OF_HOUSE;
+        board->current_ghost++;
+        if (board->current_ghost < 3) {
+            board->current_counter_reference = &board->preferred_ghost[board->current_ghost]->dot_counter;
+        }
+    }
+
+    // TODO: Add timers update
+    // 1. Timer for automatically get out of the house (globally, assign to preferred ghost)
+    // 2. Timer for frightened behavior (globally)
+    // 3. Timer for scatter/chase behavior (per ghost)
+    // 4. Timer allowing the ghost to move (per ghost)
+}
 
 void update_board(board *board) {
     if (board->score > 0 && board->score % 10000 == 0) {
@@ -227,9 +256,6 @@ int move_pacman(board *board, direction d) {
 }
 
 void move_ghosts(board *board) {
-    // TODO: Add ghost state transition
-    // Example: INIT -> OUT_OF_HOUSE -> SCATTER -> CHASE
-    // Might need a timer for these transitions too
     move_ghost(board->blinky, board->board, get_blinky_target_position(board));
     move_ghost(board->pinky, board->board, get_pinky_target_position(board));
     move_ghost(board->inky, board->board, get_inky_target_position(board));

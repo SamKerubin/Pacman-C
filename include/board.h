@@ -88,7 +88,9 @@ typedef struct board {
     uint32_t score;
     uint16_t lifes;
     uint16_t level;
+    uint8_t global_dot_counter;
     uint8_t *current_counter_reference;
+    uint8_t current_ghost;
 } board;
 
 board *init_board();
@@ -97,6 +99,7 @@ void end_game(board *board);
 int is_inside_bounds(coordinates coord);
 int is_wall(coordinates coord, uint8_t **board);
 
+void update_ghosts(board *board);
 void update_board(board *board);
 void print_board(board *board);
 

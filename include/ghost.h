@@ -26,6 +26,7 @@ typedef struct ghost {
     ghost_state state;
     uint8_t id;
     uint8_t dot_counter;
+    uint8_t dot_limit;
 } ghost;
 
 ghost *init_ghost(uint8_t id, coordinates init_position);
