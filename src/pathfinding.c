@@ -6,10 +6,6 @@
 coordinates find_shortest_path(uint8_t id, ghost_state state, uint8_t **board,
                                coordinates start,
                                coordinates end) {
-    if (compare_coordinates(start, end)) {
-        return start;
-    }
-
     coordinates shortest = {-1, -1};
     int shortest_distance = INT_MAX;
     int shortest_priority = 0;

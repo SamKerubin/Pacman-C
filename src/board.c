@@ -2,6 +2,7 @@
 #include "board_data.h"
 #include "coordinates.h"
 #include "ghost.h"
+#include "time_ms.h"
 #include "pacman.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +37,7 @@ board *init_board() {
 
     b->blinky = init_ghost(BLINKY_ID, BLINKY_INIT_POSITION);
     b->blinky->state = SCATTER;
+    b->blinky->scatter_time = get_time_ms() + GHOST_SCATTER_TIME_MS;
 
     b->board[b->blinky->position.Y][b->blinky->position.X] = b->blinky->id;
 
@@ -59,6 +61,8 @@ board *init_board() {
 
     b->pacman = init_pacman(PACMAN_ID, PACMAN_INIT_POSITION);
     b->board[b->pacman->position.Y][b->pacman->position.X] = b->pacman->id;
+
+    b->last_dot_eaten_time = get_time_ms() + PREFERRED_GHOST_AUTOMATIC_MOVE_TIME_MS;
 
     return b;
 }
@@ -108,35 +112,102 @@ static inline int is_ghost(coordinates coord, uint8_t **board) {
            || tile == CLYDE_ID;
 }
 
+static void update_ghost_state(ghost *ghost, uint8_t has_eaten_power_dot) {
+    int64_t now = get_time_ms();
+    ghost_state state = ghost->state;
+
+    switch (state) {
+        case OUT_OF_HOUSE:
+            if (compare_coordinates(ghost->position, OUT_HOME_POSITION)) {
+                ghost->state = SCATTER;
+                ghost->scatter_time = get_time_ms() + GHOST_SCATTER_TIME_MS;
+            }
+        break;
+
+        case EATEN:
+            if (compare_coordinates(ghost->position, IN_HOME_POSITION)) {
+                ghost->state = OUT_OF_HOUSE;
+            }
+        break;
+
+        case SCATTER:
+            if (now >= ghost->scatter_time) {
+                ghost->state = CHASE;
+                ghost->chase_time = now + GHOST_CHASE_TIME_MS;
+            }
+        break;
+
+        case CHASE:
+            if (now >= ghost->chase_time) {
+                ghost->state = SCATTER;
+                ghost->scatter_time = now + GHOST_SCATTER_TIME_MS;
+            }
+        break;
+
+        case FRIGHTENED:
+            if (!has_eaten_power_dot) {
+                ghost->state = SCATTER;
+                ghost->scatter_time = now + GHOST_SCATTER_TIME_MS;
+            }
+        break;
+
+        default: return;
+    }
+}
+
 void update_ghosts(board *board) {
-    // ghost *blinky = board->blinky;
-    // ghost *pinky = board->pinky;
-    // ghost *inky = board->inky;
-    // ghost *clyde = board->clyde;
+    ghost *blinky = board->blinky;
+    ghost *pinky = board->pinky;
+    ghost *inky = board->inky;
+    ghost *clyde = board->clyde;
 
     ghost *preferred = NULL;
     if (board->current_ghost < 3) {
         preferred = board->preferred_ghost[board->current_ghost];
     }
 
-    if (preferred && *board->current_counter_reference >= preferred->dot_limit) {
-        preferred->state = OUT_OF_HOUSE;
-        board->current_ghost++;
-        if (board->current_ghost < 3) {
-            board->current_counter_reference = &board->preferred_ghost[board->current_ghost]->dot_counter;
+    if (preferred) {
+        if (*board->current_counter_reference >= preferred->dot_limit) {
+            preferred->state = OUT_OF_HOUSE;
+            board->current_ghost++;
+            if (board->current_ghost < 3) {
+                board->current_counter_reference = &board->preferred_ghost[board->current_ghost]->dot_counter;
+            }
+        }
+
+        int64_t now = get_time_ms();
+        if (now >= board->last_dot_eaten_time) {
+            board->last_dot_eaten_time = get_time_ms() + PREFERRED_GHOST_AUTOMATIC_MOVE_TIME_MS;
+            preferred->state = OUT_OF_HOUSE;
+            board->current_ghost++;
+            if (board->current_ghost < 3) {
+                board->current_counter_reference = &board->preferred_ghost[board->current_ghost]->dot_counter;
+            }
         }
     }
 
-    // TODO: Add timers update
-    // 1. Timer for automatically get out of the house (globally, assign to preferred ghost)
-    // 2. Timer for frightened behavior (globally)
-    // 3. Timer for scatter/chase behavior (per ghost)
-    // 4. Timer allowing the ghost to move (per ghost)
+    update_ghost_state(blinky, board->has_eaten_power_dot);
+    update_ghost_state(pinky, board->has_eaten_power_dot);
+    update_ghost_state(inky, board->has_eaten_power_dot);
+    update_ghost_state(clyde, board->has_eaten_power_dot);
+
+    move_ghost(blinky, board->board, get_blinky_target_position(board));
+    move_ghost(pinky, board->board, get_pinky_target_position(board));
+    move_ghost(inky, board->board, get_inky_target_position(board));
+    move_ghost(clyde, board->board, get_clyde_target_position(board));
 }
 
 void update_board(board *board) {
     if (board->score > 0 && board->score % 10000 == 0) {
         board->lifes++;
+    }
+
+    if (board->has_eaten_power_dot) {
+        int64_t now = get_time_ms();
+        if (now >= board->power_dot_time) {
+            board->power_dot_time = 0;
+            board->has_eaten_power_dot = 0;
+        }
     }
 
     pacman *pacman = board->pacman;
@@ -238,7 +309,11 @@ int move_pacman(board *board, direction d) {
     }
 
     if (is_ghost(pacman_new_pos, board->board)) {
-        return 0;
+        if (!board->has_eaten_power_dot) {
+            return 0;
+        }
+
+        eat_ghost(board);
     }
 
     if (is_dot(pacman_new_pos, board->board)) {
@@ -253,13 +328,6 @@ int move_pacman(board *board, direction d) {
     pacman->position = pacman_new_pos;
 
     return 1;
-}
-
-void move_ghosts(board *board) {
-    move_ghost(board->blinky, board->board, get_blinky_target_position(board));
-    move_ghost(board->pinky, board->board, get_pinky_target_position(board));
-    move_ghost(board->inky, board->board, get_inky_target_position(board));
-    move_ghost(board->clyde, board->board, get_clyde_target_position(board));
 }
 
 void eat_ghost(board *board) {
@@ -281,6 +349,7 @@ void eat_dot(coordinates dot_pos, board *board) {
 
     if (board->current_ghost < 3) {
         (*board->current_counter_reference)++;
+        board->last_dot_eaten_time = get_time_ms() + PREFERRED_GHOST_AUTOMATIC_MOVE_TIME_MS;
     }
 
     board->score += SCORE_PER_DOT;
@@ -315,7 +384,11 @@ void eat_power_dot(coordinates pow_pos, board *board) {
 
     if (board->current_ghost < 3) {
         (*board->current_counter_reference)++;
+        board->last_dot_eaten_time = get_time_ms() + PREFERRED_GHOST_AUTOMATIC_MOVE_TIME_MS;
     }
+
+    board->has_eaten_power_dot = 1;
+    board->power_dot_time = get_time_ms() + FRIGHTENED_TIME_MS;
 
     board->score += SCORE_PER_DOT;
 
@@ -350,6 +423,7 @@ static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board,
 
 coordinates get_blinky_target_position(board *board) {
     switch (board->blinky->state) {
+        case OUT_OF_HOUSE: return OUT_HOME_POSITION;
         case SCATTER: return BLINKY_SCATTER_TARGET;
         case CHASE: return board->pacman->position;
         case FRIGHTENED: return get_random_valid_adjacent(board->blinky->position,
@@ -378,6 +452,7 @@ static coordinates pinky_chase_target(board *board) {
 coordinates get_pinky_target_position(board *board) {
     switch (board->pinky->state) {
         case INIT: return get_init_ghost_target(PINKY_INIT_POSITION, board->pinky);
+        case OUT_OF_HOUSE: return OUT_HOME_POSITION;
         case SCATTER: return PINKY_SCATTER_TARGET;
         case CHASE: return pinky_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->pinky->position,
@@ -412,6 +487,7 @@ static coordinates inky_chase_target(board *board) {
 coordinates get_inky_target_position(board *board) {
     switch (board->inky->state) {
         case INIT: return get_init_ghost_target(INKY_INIT_POSITION, board->inky);
+        case OUT_OF_HOUSE: return OUT_HOME_POSITION;
         case SCATTER: return INKY_SCATTER_TARGET;
         case CHASE: return inky_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->inky->position,
@@ -435,6 +511,7 @@ static coordinates clyde_chase_target(board *board) {
 coordinates get_clyde_target_position(board *board) {
     switch (board->clyde->state) {
         case INIT: return get_init_ghost_target(CLYDE_INIT_POSITION, board->clyde);
+        case OUT_OF_HOUSE: return OUT_HOME_POSITION;
         case SCATTER: return CLYDE_SCATTER_TARGET;
         case CHASE: return clyde_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->clyde->position,

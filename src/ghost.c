@@ -2,6 +2,7 @@
 #include "board.h"
 #include "coordinates.h"
 #include "pathfinding.h"
+#include "time_ms.h"
 #include <stdlib.h>
 
 ghost *init_ghost(uint8_t id, coordinates init_position) {
@@ -10,6 +11,7 @@ ghost *init_ghost(uint8_t id, coordinates init_position) {
     g->position = init_position;
     g->next_position = init_position;
     g->current_direction = UP;
+    g->next_movement_time = get_time_ms();
 
     return g;
 }
@@ -59,7 +61,25 @@ static void set_ghost_direction(ghost *ghost) {
     }
 }
 
+static inline int ghost_can_move(ghost *ghost) {
+    return get_time_ms() >= ghost->next_movement_time;
+}
+
+static int64_t get_ghost_movement_speed(ghost_state state) {
+    if (state == FRIGHTENED) {
+        return get_time_ms() + (GHOST_MOVEMENT_TIME_MS * 2);
+    }
+
+    return get_time_ms() + GHOST_MOVEMENT_TIME_MS;
+}
+
 void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
+    if (!ghost_can_move(ghost)) {
+        return;
+    }
+
+    ghost->next_movement_time = get_ghost_movement_speed(ghost->state);
+
     ghost->last_position = ghost->position;
     ghost->position = ghost->next_position;
 

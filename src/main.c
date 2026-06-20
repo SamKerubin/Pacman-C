@@ -12,12 +12,11 @@ int main() {
     update_board(board);
 
     while (1) {
-        move_ghosts(board);
-        usleep(1000000);
         update_ghosts(board);
         update_board(board);
         system("clear");
         print_board(board);
+        usleep(1200);
     }
 
     end_game(board);

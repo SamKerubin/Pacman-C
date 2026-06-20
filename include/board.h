@@ -53,6 +53,9 @@
 
 #define LIFE_ICON PACMAN_ICON_LEFT
 
+#define FRIGHTENED_TIME_MS 8000
+#define PREFERRED_GHOST_AUTOMATIC_MOVE_TIME_MS 4000
+
 #define SCORE_FILE_PATH "/home/%s/.config/pacman-score.txt"
 
 #include "coordinates.h"
@@ -91,6 +94,9 @@ typedef struct board {
     uint8_t global_dot_counter;
     uint8_t *current_counter_reference;
     uint8_t current_ghost;
+    int64_t last_dot_eaten_time;
+    uint8_t has_eaten_power_dot;
+    int64_t power_dot_time;
 } board;
 
 board *init_board();
@@ -104,7 +110,6 @@ void update_board(board *board);
 void print_board(board *board);
 
 int move_pacman(board *board, direction d);
-void move_ghosts(board *board);
 
 void eat_ghost(board *board);
 void eat_dot(coordinates dot_pos, board *board);

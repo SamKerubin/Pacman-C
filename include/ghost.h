@@ -5,6 +5,10 @@
 #define INKY_DOT_LIMIT 30
 #define CLYDE_DOT_LIMIT 60
 
+#define GHOST_SCATTER_TIME_MS 7000
+#define GHOST_CHASE_TIME_MS 20000
+#define GHOST_MOVEMENT_TIME_MS 204
+
 #include "coordinates.h"
 #include <stdint.h>
 
@@ -27,6 +31,9 @@ typedef struct ghost {
     uint8_t id;
     uint8_t dot_counter;
     uint8_t dot_limit;
+    int64_t scatter_time;
+    int64_t chase_time;
+    int64_t next_movement_time;
 } ghost;
 
 ghost *init_ghost(uint8_t id, coordinates init_position);
