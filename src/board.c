@@ -550,5 +550,25 @@ void life_lost(board *board) {
 
 void go_next_level(board *board) {
     board->level++;
+    fill_board(board);
+
+    board->blinky->position = BLINKY_INIT_POSITION;
+    board->pinky->position = PINKY_INIT_POSITION;
+    board->inky->position = INKY_INIT_POSITION;
+    board->clyde->position = CLYDE_INIT_POSITION;
+
+    board->pacman->position = PACMAN_INIT_POSITION;
+
+    int64_t now = get_time_ms();
+
+    board->blinky->next_movement_time = now;
+    board->pinky->next_movement_time = now;
+    board->inky->next_movement_time = now;
+    board->clyde->next_movement_time = now;
+
+    board->pacman->next_movement_time = now;
+
+    board->blinky->scatter_time = now + GHOST_SCATTER_TIME_MS;
+
 }
 
