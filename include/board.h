@@ -21,7 +21,8 @@
 #define PACMAN_INIT_POSITION (coordinates){13, 26}
 
 #define IN_HOME_POSITION (coordinates){13, 16}
-#define OUT_HOME_POSITION (coordinates){13, 14}
+#define OUT_HOME_LEFT_POSITION (coordinates){13, 14}
+#define OUT_HOME_RIGHT_POSITION (coordinates){14, 14}
 
 #define BLINKY_INIT_POSITION (coordinates){13, 14}
 #define PINKY_INIT_POSITION (coordinates){13, 17}

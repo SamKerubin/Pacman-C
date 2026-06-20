@@ -118,7 +118,8 @@ static void update_ghost_state(ghost *ghost, uint8_t has_eaten_power_dot) {
 
     switch (state) {
         case OUT_OF_HOUSE:
-            if (compare_coordinates(ghost->position, OUT_HOME_POSITION)) {
+            if (compare_coordinates(ghost->position, OUT_HOME_LEFT_POSITION)
+                || compare_coordinates(ghost->position, OUT_HOME_RIGHT_POSITION)) {
                 ghost->state = SCATTER;
                 ghost->scatter_time = get_time_ms() + GHOST_SCATTER_TIME_MS;
             }
@@ -423,7 +424,7 @@ static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board,
 
 coordinates get_blinky_target_position(board *board) {
     switch (board->blinky->state) {
-        case OUT_OF_HOUSE: return OUT_HOME_POSITION;
+        case OUT_OF_HOUSE: return OUT_HOME_LEFT_POSITION;
         case SCATTER: return BLINKY_SCATTER_TARGET;
         case CHASE: return board->pacman->position;
         case FRIGHTENED: return get_random_valid_adjacent(board->blinky->position,
@@ -452,7 +453,7 @@ static coordinates pinky_chase_target(board *board) {
 coordinates get_pinky_target_position(board *board) {
     switch (board->pinky->state) {
         case INIT: return get_init_ghost_target(PINKY_INIT_POSITION, board->pinky);
-        case OUT_OF_HOUSE: return OUT_HOME_POSITION;
+        case OUT_OF_HOUSE: return OUT_HOME_LEFT_POSITION;
         case SCATTER: return PINKY_SCATTER_TARGET;
         case CHASE: return pinky_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->pinky->position,
@@ -478,7 +479,7 @@ static coordinates inky_chase_target(board *board) {
 
     coordinates blinky_pos = board->blinky->position;
 
-    coordinates diff = coordinates_diff(blinky_pos, pacman_offset);
+    coordinates diff = coordinates_diff(pacman_offset, blinky_pos);
     coordinates mult = coordinates_mult(diff, 2);
 
     return coordinates_sum(mult, blinky_pos);
@@ -487,7 +488,7 @@ static coordinates inky_chase_target(board *board) {
 coordinates get_inky_target_position(board *board) {
     switch (board->inky->state) {
         case INIT: return get_init_ghost_target(INKY_INIT_POSITION, board->inky);
-        case OUT_OF_HOUSE: return OUT_HOME_POSITION;
+        case OUT_OF_HOUSE: return OUT_HOME_LEFT_POSITION;
         case SCATTER: return INKY_SCATTER_TARGET;
         case CHASE: return inky_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->inky->position,
@@ -511,7 +512,7 @@ static coordinates clyde_chase_target(board *board) {
 coordinates get_clyde_target_position(board *board) {
     switch (board->clyde->state) {
         case INIT: return get_init_ghost_target(CLYDE_INIT_POSITION, board->clyde);
-        case OUT_OF_HOUSE: return OUT_HOME_POSITION;
+        case OUT_OF_HOUSE: return OUT_HOME_LEFT_POSITION;
         case SCATTER: return CLYDE_SCATTER_TARGET;
         case CHASE: return clyde_chase_target(board);
         case FRIGHTENED: return get_random_valid_adjacent(board->clyde->position,
