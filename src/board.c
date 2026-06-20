@@ -293,8 +293,14 @@ void print_board(board *board) {
 }
 
 int move_pacman(board *board, direction d) {
+    if (get_time_ms() < board->pacman->next_movement_time) {
+        return 1;
+    }
+
     pacman *pacman = board->pacman;
     pacman->current_direction = d;
+
+    pacman->next_movement_time = get_time_ms() + PACMAN_MOVEMENT_TIME_MS;
 
     coordinates direction = {DIR_Y[d], DIR_X[d]};
     coordinates pacman_new_pos = coordinates_sum(pacman->position, direction);

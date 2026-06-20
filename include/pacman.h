@@ -9,6 +9,7 @@ typedef struct pacman {
     coordinates last_position;
     direction current_direction;
     uint8_t id;
+    int64_t next_movement_time;
 } pacman;
 
 pacman *init_pacman(uint8_t id, coordinates inital_position);

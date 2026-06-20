@@ -7,7 +7,7 @@
 
 #define GHOST_SCATTER_TIME_MS 7000
 #define GHOST_CHASE_TIME_MS 20000
-#define GHOST_MOVEMENT_TIME_MS 204
+#define GHOST_MOVEMENT_TIME_MS 300
 
 #include "coordinates.h"
 #include <stdint.h>
