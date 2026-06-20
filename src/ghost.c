@@ -63,16 +63,16 @@ void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
     ghost->last_position = ghost->position;
     ghost->position = ghost->next_position;
 
-    if (!is_inside_bounds(ghost->position)) {
-        ghost->position.X = (ghost->position.X % BOARD_HEIGHT + BOARD_HEIGHT) % BOARD_HEIGHT;
-        ghost->position.Y = (ghost->position.Y % BOARD_WIDTH + BOARD_WIDTH) % BOARD_WIDTH;
-    }
-
     ghost->target_coordinate = target;
 
     ghost->next_position = find_shortest_path(ghost->id, ghost->state,
                                               board, ghost->position,
                                               ghost->target_coordinate);
+
+    if (!is_inside_bounds(ghost->next_position)) {
+        ghost->next_position.X = (ghost->position.X % BOARD_HEIGHT + BOARD_HEIGHT) % BOARD_HEIGHT;
+        ghost->next_position.Y = (ghost->position.Y % BOARD_WIDTH + BOARD_WIDTH) % BOARD_WIDTH;
+    }
 
     set_ghost_direction(ghost);
 }
