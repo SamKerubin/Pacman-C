@@ -10,7 +10,6 @@
 #define STARTER_LIFES 3
 
 #define SCORE_PER_DOT 10
-#define GHOST_EATEN_MULTIPLIER 2
 #define BASE_GHOST_EATEN_SCORE 200
 
 #define BLINKY_SCATTER_TARGET (coordinates){BOARD_WIDTH - 3, 0}
@@ -99,6 +98,7 @@ typedef struct board {
     uint8_t current_ghost;
     int64_t last_dot_eaten_time;
     uint8_t has_eaten_power_dot;
+    uint8_t ghosts_eaten_count;
     int64_t power_dot_time;
 } board;
 
@@ -114,7 +114,7 @@ void print_board(board *board);
 
 int move_pacman(board *board, direction d);
 
-void eat_ghost(board *board);
+void eat_ghost(board *board, entity_id ghost_id);
 void eat_dot(coordinates dot_pos, board *board);
 void eat_power_dot(coordinates pow_pos, board *board);
 

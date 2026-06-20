@@ -70,6 +70,10 @@ static int64_t get_ghost_movement_speed(ghost_state state) {
         return get_time_ms() + (GHOST_MOVEMENT_TIME_MS * 2);
     }
 
+    if (state == EATEN) {
+        return get_time_ms() + (GHOST_MOVEMENT_TIME_MS / 3);
+    }
+
     return get_time_ms() + GHOST_MOVEMENT_TIME_MS;
 }
 

@@ -113,6 +113,7 @@ static inline int is_ghost(coordinates coord, uint8_t **board) {
 }
 
 static void update_ghost_state(ghost *ghost, uint8_t has_eaten_power_dot) {
+    // TODO: Invert ghost position when changed state
     int64_t now = get_time_ms();
     ghost_state state = ghost->state;
 
@@ -320,7 +321,8 @@ int move_pacman(board *board, direction d) {
             return 0;
         }
 
-        eat_ghost(board);
+        entity_id ghost_id = board->board[pacman_new_pos.Y][pacman_new_pos.X];
+        eat_ghost(board, ghost_id);
     }
 
     if (is_dot(pacman_new_pos, board->board)) {
@@ -337,8 +339,18 @@ int move_pacman(board *board, direction d) {
     return 1;
 }
 
-void eat_ghost(board *board) {
-    (void)board;
+void eat_ghost(board *board, entity_id ghost_id) {
+    ghost *ghost = NULL;
+    switch (ghost_id) {
+        case BLINKY_ID: ghost = board->blinky; break;
+        case PINKY_ID: ghost = board->pinky; break;
+        case INKY_ID: ghost = board->inky; break;
+        case CLYDE_ID: ghost = board->clyde; break;
+        default: break;
+    }
+
+    ghost->state = EATEN;
+    board->score += BASE_GHOST_EATEN_SCORE << board->ghosts_eaten_count++;
 }
 
 void eat_dot(coordinates dot_pos, board *board) {
@@ -388,6 +400,7 @@ void eat_power_dot(coordinates pow_pos, board *board) {
     }
 
     board->remaining_power_dots--;
+    board->ghosts_eaten_count = 0;
 
     if (board->current_ghost < 3) {
         (*board->current_counter_reference)++;
