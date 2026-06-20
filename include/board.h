@@ -13,15 +13,15 @@
 #define GHOST_EATEN_MULTIPLIER 2
 #define BASE_GHOST_EATEN_SCORE 200
 
-#define BLINKY_SCATTER_TARGET (coordinates){BOARD_WIDTH - 4, 0}
-#define PINKY_SCATTER_TARGET (coordinates){BOARD_WIDTH - (BOARD_WIDTH - 4), 0}
-#define INKY_SCATTER_TARGET (coordinates){BOARD_WIDTH - 4, BOARD_HEIGHT - 2}
-#define CLYDE_SCATTER_TARGET (coordinates){0, BOARD_WIDTH - 2}
+#define BLINKY_SCATTER_TARGET (coordinates){BOARD_WIDTH - 3, 0}
+#define PINKY_SCATTER_TARGET (coordinates){BOARD_WIDTH - (BOARD_WIDTH - 2), 0}
+#define INKY_SCATTER_TARGET (coordinates){BOARD_WIDTH - 1, BOARD_HEIGHT - 2}
+#define CLYDE_SCATTER_TARGET (coordinates){0, BOARD_HEIGHT - 2}
 
 #define PACMAN_INIT_POSITION (coordinates){13, 26}
 
-#define IN_HOME_POSITION (coordinates){13, 14}
-#define OUT_HOME_POSITION (coordinates){13, 16}
+#define IN_HOME_POSITION (coordinates){13, 16}
+#define OUT_HOME_POSITION (coordinates){13, 14}
 
 #define BLINKY_INIT_POSITION (coordinates){13, 14}
 #define PINKY_INIT_POSITION (coordinates){13, 17}
