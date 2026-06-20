@@ -93,6 +93,7 @@ typedef struct board {
     uint32_t score;
     uint16_t lifes;
     uint16_t level;
+    uint8_t is_using_global_counter;
     uint8_t global_dot_counter;
     uint8_t *current_counter_reference;
     uint8_t current_ghost;

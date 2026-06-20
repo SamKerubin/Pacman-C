@@ -544,14 +544,7 @@ coordinates get_clyde_target_position(board *board) {
     }
 }
 
-void life_lost(board *board) {
-    board->lifes--;
-}
-
-void go_next_level(board *board) {
-    board->level++;
-    fill_board(board);
-
+static void reset_entities(board * board) {
     board->blinky->position = BLINKY_INIT_POSITION;
     board->pinky->position = PINKY_INIT_POSITION;
     board->inky->position = INKY_INIT_POSITION;
@@ -569,6 +562,43 @@ void go_next_level(board *board) {
     board->pacman->next_movement_time = now;
 
     board->blinky->scatter_time = now + GHOST_SCATTER_TIME_MS;
+    board->last_dot_eaten_time = now + PREFERRED_GHOST_AUTOMATIC_MOVE_TIME_MS;
+}
 
+void life_lost(board *board) {
+    board->lifes--;
+
+    board->is_using_global_counter = 1;
+
+    board->global_dot_counter = 0;
+    board->pinky->dot_limit = 7;
+    board->inky->dot_limit = 17;
+    board->clyde->dot_limit = 32;
+
+    board->current_ghost = 0;
+    board->current_counter_reference = &board->global_dot_counter;
+
+    reset_entities(board);
+}
+
+void go_next_level(board *board) {
+    board->level++;
+    fill_board(board);
+
+    board->is_using_global_counter = 0;
+
+    board->global_dot_counter = 0;
+    board->pinky->dot_counter = 0;
+    board->inky->dot_counter = 0;
+    board->clyde->dot_counter = 0;
+
+    board->current_ghost = 0;
+    board->current_counter_reference = &board->pinky->dot_counter;
+
+    board->pinky->dot_limit = PINKY_DOT_LIMIT;
+    board->inky->dot_limit = INKY_DOT_LIMIT;
+    board->clyde->dot_limit = CLYDE_DOT_LIMIT;
+
+    reset_entities(board); 
 }
 
