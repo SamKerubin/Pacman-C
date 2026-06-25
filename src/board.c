@@ -606,27 +606,44 @@ static void reset_entities(board * board) {
     board->board[board->pinky->position.Y][board->pinky->position.X] = EMPTY_ID;
     board->board[board->inky->position.Y][board->inky->position.X] = EMPTY_ID;
     board->board[board->clyde->position.Y][board->clyde->position.X] = EMPTY_ID;
-
     board->board[board->pacman->position.Y][board->pacman->position.X] = EMPTY_ID;
 
     board->blinky->position = BLINKY_INIT_POSITION;
     board->pinky->position = PINKY_INIT_POSITION;
     board->inky->position = INKY_INIT_POSITION;
     board->clyde->position = CLYDE_INIT_POSITION;
-
     board->pacman->position = PACMAN_INIT_POSITION;
 
-    int64_t now = get_time_ms();
+    board->blinky->next_position = board->blinky->position;
+    board->pinky->next_position = board->pinky->position;
+    board->inky->next_position = board->inky->position;
+    board->clyde->next_position = board->clyde->position;
 
+    board->blinky->state = SCATTER;
+    board->pinky->state = INIT;
+    board->inky->state = INIT;
+    board->clyde->state = INIT;
+
+    board->blinky->current_direction = UP;
+    board->pinky->current_direction = UP;
+    board->inky->current_direction = UP;
+    board->clyde->current_direction = UP;
+    board->pacman->current_direction = LEFT;
+
+    int64_t now = get_time_ms();
     board->blinky->next_movement_time = now;
     board->pinky->next_movement_time = now;
     board->inky->next_movement_time = now;
     board->clyde->next_movement_time = now;
-
     board->pacman->next_movement_time = now;
-
     board->blinky->scatter_time = now + GHOST_SCATTER_TIME_MS;
     board->last_dot_eaten_time = now + PREFERRED_GHOST_AUTOMATIC_MOVE_TIME_MS;
+
+    board->board[board->blinky->position.Y][board->blinky->position.X] = BLINKY_ID;
+    board->board[board->pinky->position.Y][board->pinky->position.X] = PINKY_ID;
+    board->board[board->inky->position.Y][board->inky->position.X] = INKY_ID;
+    board->board[board->clyde->position.Y][board->clyde->position.X] = CLYDE_ID;
+    board->board[board->pacman->position.Y][board->pacman->position.X] = PACMAN_ID;
 }
 
 void life_lost(board *board) {
