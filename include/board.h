@@ -29,6 +29,7 @@
 #define CLYDE_INIT_POSITION (coordinates){15, 17}
 
 #define RESET "\033[0m"
+#define BOLD "\033[1m"
 #define BLACK_BACKGROUND "\033[48;5;16m"
 #define YELLOW "\033[38;5;226m"
 #define LIGHT_YELLOW "\033[38;5;229m"
@@ -47,7 +48,7 @@
 #define DOT_ICON "•"
 #define POWER_DOT_ICON "@"
 
-#define GHOST_ICON "^"
+#define GHOST_ICON "ඞ"
 
 #define WALL_ICON "#"
 #define HOME_DOOR_ICON "-"

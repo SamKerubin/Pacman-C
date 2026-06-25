@@ -244,10 +244,10 @@ void update_board(board *board) {
 
 static void print_pacman(direction pacman_dir) {
     switch (pacman_dir) {
-        case UP: printf(BLACK_BACKGROUND YELLOW PACMAN_ICON_UP " " RESET); break;
-        case DOWN: printf(BLACK_BACKGROUND YELLOW PACMAN_ICON_DOWN " " RESET); break;
-        case LEFT: printf(BLACK_BACKGROUND YELLOW PACMAN_ICON_LEFT " " RESET); break;
-        case RIGHT: printf(BLACK_BACKGROUND YELLOW PACMAN_ICON_RIGHT " " RESET); break;
+        case UP: printf(BOLD BLACK_BACKGROUND YELLOW PACMAN_ICON_UP " " RESET); break;
+        case DOWN: printf(BOLD BLACK_BACKGROUND YELLOW PACMAN_ICON_DOWN " " RESET); break;
+        case LEFT: printf(BOLD BLACK_BACKGROUND YELLOW PACMAN_ICON_LEFT " " RESET); break;
+        case RIGHT: printf(BOLD BLACK_BACKGROUND YELLOW PACMAN_ICON_RIGHT " " RESET); break;
         default: break;
     }
 }
@@ -255,13 +255,13 @@ static void print_pacman(direction pacman_dir) {
 static void print_ghost(ghost *ghost) {
     char *format;
     if (ghost->state == FRIGHTENED) {
-        format = BLACK_BACKGROUND LIGHT_BLUE GHOST_ICON " " RESET;
+        format = BOLD BLACK_BACKGROUND LIGHT_BLUE GHOST_ICON " " RESET;
     } else {
         switch (ghost->id) {
-            case BLINKY_ID: format = BLACK_BACKGROUND RED GHOST_ICON " " RESET; break;
-            case PINKY_ID: format = BLACK_BACKGROUND PINK GHOST_ICON " " RESET; break;
-            case INKY_ID: format = BLACK_BACKGROUND CYAN GHOST_ICON " " RESET; break;
-            case CLYDE_ID: format = BLACK_BACKGROUND ORANGE GHOST_ICON " " RESET; break;
+            case BLINKY_ID: format = BOLD BLACK_BACKGROUND RED GHOST_ICON " " RESET; break;
+            case PINKY_ID: format = BOLD BLACK_BACKGROUND PINK GHOST_ICON " " RESET; break;
+            case INKY_ID: format = BOLD BLACK_BACKGROUND CYAN GHOST_ICON " " RESET; break;
+            case CLYDE_ID: format = BOLD BLACK_BACKGROUND ORANGE GHOST_ICON " " RESET; break;
             default: return;
         }
     }
@@ -287,7 +287,7 @@ static void print_score(uint32_t score) {
     buff[idx] = '\0';
 
     for (int i = idx; i >= 0; i--) {
-        printf(BLACK_BACKGROUND "%c " RESET, buff[i]);
+        printf(BOLD BLACK_BACKGROUND "%c " RESET, buff[i]);
     }
 
     for (int i = 0; i < length; i++) {
@@ -301,7 +301,7 @@ static void print_lifes(uint16_t lifes) {
     int length = BOARD_WIDTH;
 
     for (int i = 0; i < lifes; i++) {
-        printf(BLACK_BACKGROUND YELLOW LIFE_ICON " " RESET);
+        printf(BOLD BLACK_BACKGROUND YELLOW LIFE_ICON " " RESET);
         length--;
     }
 
@@ -313,7 +313,7 @@ static void print_lifes(uint16_t lifes) {
 }
 
 void print_board(board *board) {
-    printf(BLACK_BACKGROUND "    1 U P      H I G H   S C O R E                      \n" RESET);
+    printf(BOLD BLACK_BACKGROUND "    1 U P      H I G H   S C O R E                      \n" RESET);
     print_score(board->score);
     printf(BLACK_BACKGROUND "                                                        " RESET "\n");
 
@@ -327,11 +327,11 @@ void print_board(board *board) {
                 case INKY_ID: print_ghost(board->inky); break;
                 case CLYDE_ID: print_ghost(board->clyde); break;
 
-                case WALL_ID: printf(BLACK_BACKGROUND BLUE WALL_ICON " " RESET); break;
-                case HOME_DOOR_ID: printf(BLACK_BACKGROUND PINK HOME_DOOR_ICON " " RESET); break;
+                case WALL_ID: printf(BOLD BLACK_BACKGROUND BLUE WALL_ICON " " RESET); break;
+                case HOME_DOOR_ID: printf(BOLD BLACK_BACKGROUND PINK HOME_DOOR_ICON " " RESET); break;
                 case EMPTY_ID: printf(BLACK_BACKGROUND "  " RESET); break;
-                case DOT_ID: printf(BLACK_BACKGROUND LIGHT_YELLOW DOT_ICON " " RESET); break;
-                case POWER_DOT_ID: printf(BLACK_BACKGROUND LIGHT_YELLOW POWER_DOT_ICON " " RESET); break;
+                case DOT_ID: printf(BOLD BLACK_BACKGROUND LIGHT_YELLOW DOT_ICON " " RESET); break;
+                case POWER_DOT_ID: printf(BOLD BLACK_BACKGROUND LIGHT_YELLOW POWER_DOT_ICON " " RESET); break;
                 case PACMAN_ID: print_pacman(board->pacman->current_direction); break;
                 default: break;
             }
