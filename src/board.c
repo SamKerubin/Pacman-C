@@ -257,12 +257,12 @@ static void print_pacman(direction pacman_dir) {
     }
 }
 
-static void print_ghost(entity_id id, int is_frightened) {
+static void print_ghost(ghost *ghost) {
     char *format;
-    if (is_frightened) {
+    if (ghost->state == FRIGHTENED) {
         format = BLACK_BACKGROUND LIGHT_BLUE GHOST_ICON " " RESET;
     } else {
-        switch (id) {
+        switch (ghost->id) {
             case BLINKY_ID: format = BLACK_BACKGROUND RED GHOST_ICON " " RESET; break;
             case PINKY_ID: format = BLACK_BACKGROUND PINK GHOST_ICON " " RESET; break;
             case INKY_ID: format = BLACK_BACKGROUND CYAN GHOST_ICON " " RESET; break;
@@ -327,12 +327,10 @@ void print_board(board *board) {
             uint8_t tile = board->board[i][j];
 
             switch (tile) {
-                case BLINKY_ID:
-                case PINKY_ID:
-                case INKY_ID:
-                case CLYDE_ID:
-                    print_ghost(tile, board->has_eaten_power_dot);
-                break;
+                case BLINKY_ID: print_ghost(board->blinky); break;
+                case PINKY_ID: print_ghost(board->pinky); break;
+                case INKY_ID: print_ghost(board->inky); break;
+                case CLYDE_ID: print_ghost(board->clyde); break;
 
                 case WALL_ID: printf(BLACK_BACKGROUND BLUE WALL_ICON " " RESET); break;
                 case HOME_DOOR_ID: printf(BLACK_BACKGROUND PINK HOME_DOOR_ICON " " RESET); break;
