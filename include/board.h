@@ -114,6 +114,14 @@ void update_ghosts(board *board);
 void update_board(board *board);
 void print_board(board *board);
 
+static inline void set_pacman_direction(board *board, direction d) {
+    board->pacman->current_direction = d;
+}
+
+static inline direction get_pacman_direction(board *board) {
+    return board->pacman->current_direction;
+}
+
 int move_pacman(board *board, direction d);
 
 void eat_ghost(board *board, entity_id ghost_id);
