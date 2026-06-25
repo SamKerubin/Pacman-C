@@ -257,9 +257,69 @@ static void print_pacman(direction pacman_dir) {
     }
 }
 
+static void print_ghost(entity_id id, int is_frightened) {
+    char *format;
+    if (is_frightened) {
+        format = BLACK_BACKGROUND LIGHT_BLUE GHOST_ICON " " RESET;
+    } else {
+        switch (id) {
+            case BLINKY_ID: format = BLACK_BACKGROUND RED GHOST_ICON " " RESET; break;
+            case PINKY_ID: format = BLACK_BACKGROUND PINK GHOST_ICON " " RESET; break;
+            case INKY_ID: format = BLACK_BACKGROUND CYAN GHOST_ICON " " RESET; break;
+            case CLYDE_ID: format = BLACK_BACKGROUND ORANGE GHOST_ICON " " RESET; break;
+            default: return;
+        }
+    }
+
+    printf("%s", format);
+}
+
+static void print_score(uint32_t score) {
+    printf(BLACK_BACKGROUND "     " RESET);
+
+    int length = BOARD_WIDTH - 3;
+
+    char buff[11];
+    int idx = 0;
+    while (score != 0 && idx < 11) {
+        int dig = score % 10;
+        buff[idx++] = '0' + dig;
+
+        length--;
+        score /= 10;
+    }
+
+    buff[idx] = '\0';
+
+    for (int i = idx; i >= 0; i--) {
+        printf(BLACK_BACKGROUND "%c " RESET, buff[i]);
+    }
+
+    for (int i = 0; i < length; i++) {
+        printf(BLACK_BACKGROUND "  " RESET);
+    }
+
+    printf("\n");
+}
+
+static void print_lifes(uint16_t lifes) {
+    int length = BOARD_WIDTH;
+
+    for (int i = 0; i < lifes; i++) {
+        printf(BLACK_BACKGROUND YELLOW LIFE_ICON " " RESET);
+        length--;
+    }
+
+    for (int i = 0; i < length; i++) {
+        printf(BLACK_BACKGROUND "  " RESET);
+    }
+
+    printf("\n");
+}
+
 void print_board(board *board) {
-    printf(BLACK_BACKGROUND "   1UP      HIGH   SCORE                                \n" RESET);
-    printf(BLACK_BACKGROUND "     %d                                                  " RESET "\n", board->score);
+    printf(BLACK_BACKGROUND "    1 U P      H I G H   S C O R E                      \n" RESET);
+    print_score(board->score);
     printf(BLACK_BACKGROUND "                                                        " RESET "\n");
 
     for (int i = 3; i < BOARD_HEIGHT - 2; i++) {
@@ -267,16 +327,19 @@ void print_board(board *board) {
             uint8_t tile = board->board[i][j];
 
             switch (tile) {
+                case BLINKY_ID:
+                case PINKY_ID:
+                case INKY_ID:
+                case CLYDE_ID:
+                    print_ghost(tile, board->has_eaten_power_dot);
+                break;
+
                 case WALL_ID: printf(BLACK_BACKGROUND BLUE WALL_ICON " " RESET); break;
                 case HOME_DOOR_ID: printf(BLACK_BACKGROUND PINK HOME_DOOR_ICON " " RESET); break;
                 case EMPTY_ID: printf(BLACK_BACKGROUND "  " RESET); break;
                 case DOT_ID: printf(BLACK_BACKGROUND LIGHT_YELLOW DOT_ICON " " RESET); break;
                 case POWER_DOT_ID: printf(BLACK_BACKGROUND LIGHT_YELLOW POWER_DOT_ICON " " RESET); break;
                 case PACMAN_ID: print_pacman(board->pacman->current_direction); break;
-                case BLINKY_ID: printf(BLACK_BACKGROUND RED GHOST_ICON " " RESET); break;
-                case PINKY_ID: printf(BLACK_BACKGROUND PINK GHOST_ICON " " RESET); break;
-                case INKY_ID: printf(BLACK_BACKGROUND CYAN GHOST_ICON " " RESET); break;
-                case CLYDE_ID: printf(BLACK_BACKGROUND ORANGE GHOST_ICON " " RESET); break;
                 default: break;
             }
 
@@ -286,11 +349,8 @@ void print_board(board *board) {
         }
     }
 
+    print_lifes(board->lifes);
     printf(BLACK_BACKGROUND "                                                        " RESET "\n");
-    for (int i = 0; i < board->lifes; i++) {
-        printf(BLACK_BACKGROUND YELLOW LIFE_ICON " " RESET);
-    }
-    printf(BLACK_BACKGROUND "                                                  " RESET "\n");
 }
 
 int move_pacman(board *board, direction d) {
@@ -299,7 +359,6 @@ int move_pacman(board *board, direction d) {
     }
 
     pacman *pacman = board->pacman;
-    pacman->current_direction = d;
 
     pacman->next_movement_time = get_time_ms() + PACMAN_MOVEMENT_TIME_MS;
 
@@ -433,10 +492,10 @@ static coordinates get_random_valid_adjacent(coordinates start, uint8_t **board,
         adj[i] = (coordinates){start.X + DIR_X[i], start.Y + DIR_Y[i]};
     }
 
-    int r = -1;
-    do {
+    int r = 0;
+    while (!is_valid_ghost_movement(adj[r], board, id, state)) {
         r = rand() % 4;
-    } while(!is_valid_ghost_movement(adj[r], board, id, state));
+    }
 
     return adj[r];
 }
@@ -545,6 +604,13 @@ coordinates get_clyde_target_position(board *board) {
 }
 
 static void reset_entities(board * board) {
+    board->board[board->blinky->position.Y][board->blinky->position.X] = EMPTY_ID;
+    board->board[board->pinky->position.Y][board->pinky->position.X] = EMPTY_ID;
+    board->board[board->inky->position.Y][board->inky->position.X] = EMPTY_ID;
+    board->board[board->clyde->position.Y][board->clyde->position.X] = EMPTY_ID;
+
+    board->board[board->pacman->position.Y][board->pacman->position.X] = EMPTY_ID;
+
     board->blinky->position = BLINKY_INIT_POSITION;
     board->pinky->position = PINKY_INIT_POSITION;
     board->inky->position = INKY_INIT_POSITION;

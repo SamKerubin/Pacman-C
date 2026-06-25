@@ -37,6 +37,7 @@
 #define CYAN "\033[38;5;51m"
 #define ORANGE "\033[38;5;214m"
 #define BLUE "\033[38;5;20m"
+#define LIGHT_BLUE "\033[38;5;27m"
 
 #define PACMAN_ICON_UP "v"
 #define PACMAN_ICON_DOWN "^"
