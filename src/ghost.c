@@ -32,7 +32,7 @@ static inline int can_turn(ghost_state state) {
     return state == INIT;
 }
 
-int is_valid_ghost_movement(coordinates coord, uint8_t ** board, uint8_t ghost_id, ghost_state state) {
+int is_valid_ghost_movement(coordinates coord, uint8_t **board, uint8_t ghost_id, ghost_state state) {
     int valid = !is_wall(coord, board);
 
     if (!can_turn(state)) {
@@ -92,11 +92,6 @@ void move_ghost(ghost *ghost, uint8_t **board, coordinates target) {
     ghost->next_position = find_shortest_path(ghost->id, ghost->state,
                                               board, ghost->position,
                                               ghost->target_coordinate);
-
-    if (!is_inside_bounds(ghost->next_position)) {
-        ghost->next_position.X = (ghost->position.X % BOARD_HEIGHT + BOARD_HEIGHT) % BOARD_HEIGHT;
-        ghost->next_position.Y = (ghost->position.Y % BOARD_WIDTH + BOARD_WIDTH) % BOARD_WIDTH;
-    }
 
     set_ghost_direction(ghost);
 }

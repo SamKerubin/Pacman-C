@@ -1,4 +1,5 @@
 #include "pathfinding.h"
+#include "board.h"
 #include "coordinates.h"
 #include "ghost.h"
 #include <limits.h>
@@ -12,6 +13,12 @@ coordinates find_shortest_path(uint8_t id, ghost_state state, uint8_t **board,
 
     for (int i = 0; i < 4; i++) {
         coordinates adj_coord = (coordinates){start.X + DIR_X[i], start.Y + DIR_Y[i]};
+
+        if (adj_coord.X < 0) {
+            adj_coord.X = BOARD_WIDTH - 1;
+        } else if (adj_coord.X >= BOARD_WIDTH) {
+            adj_coord.X = 0;
+        }
 
         if (!is_valid_ghost_movement(adj_coord, board, id, state)) {
             continue;

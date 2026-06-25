@@ -87,11 +87,6 @@ void end_game(board *board) {
     free(board);
 }
 
-int is_inside_bounds(coordinates coord) {
-    return (coord.X < BOARD_HEIGHT && coord.X >= 0)
-            && (coord.Y < BOARD_WIDTH && coord.Y >= 0);
-}
-
 int is_wall(coordinates coord, uint8_t **board) {
     return board[coord.Y][coord.X] == WALL_ID;
 }
@@ -363,14 +358,15 @@ int move_pacman(board *board, direction d) {
     coordinates direction = {DIR_Y[d], DIR_X[d]};
     coordinates pacman_new_pos = coordinates_sum(pacman->position, direction);
 
+    if (pacman_new_pos.X < 0) {
+        pacman_new_pos.X = BOARD_WIDTH - 1;
+    } else if (pacman_new_pos.X >= BOARD_WIDTH) {
+        pacman_new_pos.X = 0;
+    }
+
     if (is_wall(pacman_new_pos, board->board)
         || board->board[pacman_new_pos.Y][pacman_new_pos.X] == HOME_DOOR_ID) {
         return 1;
-    }
-
-    if (!is_inside_bounds(pacman_new_pos)) {
-        pacman_new_pos.X = (pacman_new_pos.X % BOARD_HEIGHT + BOARD_HEIGHT) % BOARD_HEIGHT;
-        pacman_new_pos.Y = (pacman_new_pos.Y % BOARD_WIDTH + BOARD_WIDTH) % BOARD_WIDTH;
     }
 
     if (is_ghost(pacman_new_pos, board->board)) {
@@ -404,6 +400,10 @@ void eat_ghost(board *board, entity_id ghost_id) {
         case INKY_ID: ghost = board->inky; break;
         case CLYDE_ID: ghost = board->clyde; break;
         default: break;
+    }
+
+    if (ghost->state == EATEN) {
+        return;
     }
 
     ghost->state = EATEN;
